@@ -1,12 +1,11 @@
 // Minimal service worker — exists purely so Chrome/Android treats this as an
-// installable app. Static assets (fonts, icons) are cached for speed, but the
-// HTML shell and manifest are always fetched fresh over the network first —
-// caching those cache-first would mean app updates never reach an installed
-// copy until the service worker script itself changes.
+// installable app. Only truly static assets (fonts, icons) are cache-first.
+// The HTML shell, manifest, and styles.css are all network-first — anything
+// that changes during active development must never be cache-first, or an
+// installed copy can get stuck showing an old version indefinitely.
 
-const CACHE_NAME = "off-the-peg-shell-v3";
+const CACHE_NAME = "off-the-peg-shell-v4";
 const STATIC_ASSETS = [
-  "./styles.css",
   "./fonts/routed-gothic.woff2",
   "./fonts/routed-gothic-italic.woff2",
   "./fonts/routed-gothic-wide.woff2",
@@ -38,7 +37,7 @@ self.addEventListener("fetch", (event) => {
     return; // cross-origin (Supabase, CDN scripts) always goes straight to network
   }
 
-  const isShellDoc = url.pathname.endsWith("/") || url.pathname.endsWith("index.html") || url.pathname.endsWith("manifest.json");
+  const isShellDoc = url.pathname.endsWith("/") || url.pathname.endsWith("index.html") || url.pathname.endsWith("manifest.json") || url.pathname.endsWith("styles.css");
   if (isShellDoc) {
     // Network-first: always try to get the latest HTML/manifest. Only fall
     // back to a cached copy if there's genuinely no connection.
