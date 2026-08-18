@@ -643,8 +643,8 @@
 
     $("#statStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">Items on the rail</div></div>
-      <div class="stat"><div class="stat-num">${fmtMoney(totalValue)}</div><div class="stat-label">Total invested</div></div>
-      <div class="stat"><div class="stat-num">${avgCpw !== null && !isNaN(avgCpw) ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
+      <div class="stat"><div class="stat-num money">${fmtMoney(totalValue)}</div><div class="stat-label">Total invested</div></div>
+      <div class="stat"><div class="stat-num money">${avgCpw !== null && !isNaN(avgCpw) ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
       <div class="stat"><div class="stat-num">${unworn}</div><div class="stat-label">Never worn</div></div>
     `;
   }
@@ -984,8 +984,8 @@
 
       <div class="detail-stats">
         <div class="detail-stat"><div class="n">${item.wearCount||0}</div><div class="l">Times worn</div></div>
-        <div class="detail-stat"><div class="n">${cpw!==null?fmtMoney(cpw):"—"}</div><div class="l">Cost per wear</div></div>
-        <div class="detail-stat"><div class="n">${fmtMoney(item.price)}</div><div class="l">Price paid</div></div>
+        <div class="detail-stat"><div class="n money">${cpw!==null?fmtMoney(cpw):"—"}</div><div class="l">Cost per wear</div></div>
+        <div class="detail-stat"><div class="n money">${fmtMoney(item.price)}</div><div class="l">Price paid</div></div>
         <div class="detail-stat"><div class="n">${item.lastWorn ? daysSince(item.lastWorn)+"d" : "—"}</div><div class="l">Since last worn</div></div>
       </div>
 
@@ -1229,8 +1229,8 @@
     $("#insightsStatStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${totalWearEvents}</div><div class="stat-label">Wears logged</div></div>
       <div class="stat"><div class="stat-num">${neverWorn}</div><div class="stat-label">Never worn</div></div>
-      <div class="stat"><div class="stat-num">${avgCpw !== null ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
-      <div class="stat"><div class="stat-num">${fmtMoney(totalValue)}</div><div class="stat-label">Wardrobe value</div></div>
+      <div class="stat"><div class="stat-num money">${avgCpw !== null ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
+      <div class="stat"><div class="stat-num money">${fmtMoney(totalValue)}</div><div class="stat-label">Wardrobe value</div></div>
     `;
 
     // Wears by month, last 6 months
@@ -1303,7 +1303,7 @@
     const recouped = retired.reduce((s,i)=> s + (parseFloat(i.resaleValue)||0), 0);
     $("#declutterStatStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${retired.length}</div><div class="stat-label">Items retired</div></div>
-      <div class="stat"><div class="stat-num">${fmtMoney(recouped)}</div><div class="stat-label">Recouped from sales</div></div>
+      <div class="stat"><div class="stat-num money">${fmtMoney(recouped)}</div><div class="stat-label">Recouped from sales</div></div>
     `;
     $("#declutterList").innerHTML = retired.length === 0
       ? `<p class="empty-note">Nothing retired yet.</p>`
@@ -1380,7 +1380,7 @@
     const deadWeight = items.filter(i=>!(i.wearCount>0)).reduce((sum,i)=> sum+(parseFloat(i.price)||0), 0);
     $("#cullStatStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${candidates.length}</div><div class="stat-label">Cull candidates</div></div>
-      <div class="stat"><div class="stat-num">${fmtMoney(deadWeight)}</div><div class="stat-label">Dead weight (never worn)</div></div>
+      <div class="stat"><div class="stat-num money">${fmtMoney(deadWeight)}</div><div class="stat-label">Dead weight (never worn)</div></div>
     `;
 
     $("#cullList").innerHTML = candidates.length === 0
