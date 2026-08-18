@@ -1,4 +1,4 @@
-/* Routed Gothic — a free (SIL OFL) recreation of Gorton, the mechanically-engraved
+  /* Routed Gothic — a free (SIL OFL) recreation of Gorton, the mechanically-engraved
      font found on Manhattan elevator plaques, intercoms and building signage.
      See fonts/routed-gothic-LICENSE.md for the licence text, which must ship
      alongside these files per the OFL's redistribution terms. */
@@ -545,6 +545,11 @@
     border-radius:6px;
     padding:32px 28px;
   }
+  .auth-3d{
+    width:110px; height:140px;
+    margin:0 auto 6px;
+  }
+  .auth-3d canvas{display:block; width:100%; height:100%;}
   .auth-card h2{font-family:var(--font-display); color:var(--heading); margin:0 0 6px; font-size:21px; text-transform:uppercase; letter-spacing:.04em;}
   .auth-card .drawer-sub{margin-bottom:22px;}
   .auth-error{color:#c96a6a; font-size:12px; margin-top:-8px; margin-bottom:14px; min-height:14px;}
