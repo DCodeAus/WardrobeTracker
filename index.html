@@ -1042,6 +1042,7 @@
   // ---------- NAV ----------
   $$(".rail-item").forEach(btn=>{
     btn.addEventListener("click", ()=>{
+      if(!btn.dataset.view) return; // Settings / Sign out share this class for styling only
       $$(".rail-item").forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
       $$(".view").forEach(v=>v.classList.remove("active"));
