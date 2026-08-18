@@ -4,8 +4,9 @@
 // caching those cache-first would mean app updates never reach an installed
 // copy until the service worker script itself changes.
 
-const CACHE_NAME = "off-the-peg-shell-v2";
+const CACHE_NAME = "off-the-peg-shell-v3";
 const STATIC_ASSETS = [
+  "./styles.css",
   "./fonts/routed-gothic.woff2",
   "./fonts/routed-gothic-italic.woff2",
   "./fonts/routed-gothic-wide.woff2",
