@@ -33,6 +33,7 @@
     --brass:#f0b429;
     --brass-dim:#c9932a;
     --brass-bright:#ffcc4d;
+    --heading:#6e9bc7;
     --ink-text:#26262b;
     --text-soft:#adadb1;
     --text-dim:#8a8a8f;
@@ -91,6 +92,7 @@
     letter-spacing:.06em;
     border-bottom:1px solid var(--panel-line);
     margin-bottom:8px;
+    color:var(--heading);
   }
   .rail-brand small{
     display:block;
@@ -165,6 +167,7 @@
     text-transform:uppercase;
     letter-spacing:.04em;
     margin:0;
+    color:var(--heading);
   }
   .page-sub{
     color:var(--text-dim);
@@ -192,9 +195,10 @@
   .stat-num{
     font-family:var(--font-mono);
     font-size:26px;
-    color:var(--brass);
+    color:var(--heading);
     line-height:1;
   }
+  .stat-num.money{color:var(--brass);}
   .stat-label{
     font-size:11px;
     color:var(--text-dim);
@@ -208,7 +212,7 @@
     font-size:11px;
     letter-spacing:.14em;
     text-transform:uppercase;
-    color:var(--brass);
+    color:var(--heading);
     margin:0 0 14px;
     display:flex; align-items:center; gap:10px;
   }
@@ -373,7 +377,7 @@
     margin-bottom:14px;
   }
   .outfit-card h3{
-    font-family:var(--font-display); margin:0 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.02em;
+    font-family:var(--font-display); margin:0 0 8px; font-size:18px; text-transform:uppercase; letter-spacing:.02em; color:var(--heading);
   }
   .outfit-pieces{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
   .piece-chip{
@@ -406,7 +410,7 @@
     overflow-y:auto;
   }
   .drawer h2{
-    font-family:var(--font-display); font-size:22px; margin:0 0 4px; text-transform:uppercase; letter-spacing:.03em;
+    font-family:var(--font-display); font-size:22px; margin:0 0 4px; text-transform:uppercase; letter-spacing:.03em; color:var(--heading);
   }
   .drawer-sub{color:var(--text-dim); font-size:12px; font-family:var(--font-mono); margin-bottom:24px;}
   .field{margin-bottom:16px;}
@@ -490,7 +494,8 @@
     border-radius:4px; overflow:hidden; margin:18px 0;
   }
   .detail-stat{background:var(--panel); padding:14px 16px;}
-  .detail-stat .n{font-family:var(--font-mono); font-size:20px; color:var(--brass);}
+  .detail-stat .n{font-family:var(--font-mono); font-size:20px; color:var(--heading);}
+  .detail-stat .n.money{color:var(--brass);}
   .detail-stat .l{font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:4px;}
   .detail-notes{font-size:13px; color:var(--text-soft); line-height:1.6; margin:16px 0;}
 
@@ -507,7 +512,7 @@
     text-align:center; padding:60px 20px; color:var(--text-dim);
   }
   .empty-state .glyph{font-size:34px; margin-bottom:14px; opacity:.6;}
-  .empty-state h3{font-family:var(--font-display); color:var(--white); font-size:19px; margin:0 0 8px; text-transform:uppercase; letter-spacing:.03em;}
+  .empty-state h3{font-family:var(--font-display); color:var(--heading); font-size:19px; margin:0 0 8px; text-transform:uppercase; letter-spacing:.03em;}
   .empty-state p{font-size:13px; max-width:320px; margin:0 auto 18px;}
 
   /* ---------- INSIGHTS ---------- */
@@ -541,7 +546,7 @@
     border-radius:6px;
     padding:32px 28px;
   }
-  .auth-card h2{font-family:var(--font-display); margin:0 0 6px; font-size:21px; text-transform:uppercase; letter-spacing:.04em;}
+  .auth-card h2{font-family:var(--font-display); color:var(--heading); margin:0 0 6px; font-size:21px; text-transform:uppercase; letter-spacing:.04em;}
   .auth-card .drawer-sub{margin-bottom:22px;}
   .auth-error{color:#c96a6a; font-size:12px; margin-top:-8px; margin-bottom:14px; min-height:14px;}
 
