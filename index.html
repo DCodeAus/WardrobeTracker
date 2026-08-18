@@ -539,7 +539,7 @@
     <div class="rail-brand">The Rail<small>Wardrobe Log · Dan</small></div>
     <div class="rail-nav">
       <button class="rail-item active" data-view="dashboard"><span class="hook"></span>Dashboard</button>
-      <button class="rail-item" data-view="closet"><span class="hook"></span>Closet</button>
+      <button class="rail-item" data-view="closet"><span class="hook"></span>Cupboard</button>
       <button class="rail-item" data-view="outfits"><span class="hook"></span>Outfits</button>
       <button class="rail-item" data-view="insights"><span class="hook"></span>Insights</button>
     </div>
@@ -553,7 +553,7 @@
     <!-- DASHBOARD -->
     <section class="view active" id="view-dashboard">
       <div class="page-head"><h1 class="page-title">Dashboard</h1></div>
-      <p class="page-sub">A running read on what's in the closet and what it's costing you.</p>
+      <p class="page-sub">A running read on what's in the cupboard and what it's costing you.</p>
 
       <div class="stat-strip" id="statStrip"></div>
 
@@ -566,7 +566,7 @@
 
     <!-- CLOSET -->
     <section class="view" id="view-closet">
-      <div class="page-head"><h1 class="page-title">Closet</h1></div>
+      <div class="page-head"><h1 class="page-title">Cupboard</h1></div>
       <p class="page-sub">Every item on the rail. Tap a tag to log a wear or edit its details.</p>
 
       <div class="toolbar">
@@ -685,7 +685,7 @@
     </div>
 
     <div class="drawer-actions">
-      <button class="btn-primary" id="saveItemBtn">Save to closet</button>
+      <button class="btn-primary" id="saveItemBtn">Save to the cupboard</button>
       <button class="btn-ghost" data-close="itemOverlay">Cancel</button>
     </div>
   </div>
@@ -724,7 +724,7 @@
 <div class="overlay center active" id="authOverlay">
   <div class="auth-card">
     <h2>The Rail</h2>
-    <div class="drawer-sub">Sign in to sync your closet across devices</div>
+    <div class="drawer-sub">Sign in to sync your cupboard across devices</div>
     <div class="field">
       <label>Email</label>
       <input type="email" id="auth-email" placeholder="you@example.com">
@@ -855,7 +855,7 @@
       }));
     }catch(e){
       console.error("Load from Supabase failed", e);
-      showToast("Couldn't load your closet — check the console");
+      showToast("Couldn't load your cupboard — check the console");
       state = { items: [], outfits: [], wearLog: [] };
     }
   }
@@ -996,7 +996,7 @@
     `;
   }
 
-  // ---------- CLOSET ----------
+  // ---------- CUPBOARD ----------
   function renderCategoryChips(){
     const chips = ["all", ...Object.keys(CATS)];
     $("#categoryChips").innerHTML = chips.map(c=>{
@@ -1034,7 +1034,7 @@
     const grid = $("#closetGrid");
     if(items.length === 0){
       grid.innerHTML = state.items.length === 0
-        ? emptyStateHtml("🪝","Nothing hung yet","Add an item to start building your closet log.","openAddItem","Hang an item")
+        ? emptyStateHtml("🪝","Nothing hung yet","Add an item to start building your cupboard log.","openAddItem","Hang an item")
         : `<div class="empty-state" style="grid-column:1/-1;"><div class="glyph">🔍</div><h3>No matches</h3><p>Try a different search or category.</p></div>`;
     }else{
       grid.innerHTML = items.map(tagCard).join("");
@@ -1123,7 +1123,7 @@
         const { data: row, error } = await sb.from("items").insert(itemObjToRow(data)).select().single();
         if(error) throw error;
         state.items.unshift(itemRowToObj(row));
-        showToast("Added to the closet");
+        showToast("Added to the cupboard");
       }
       closeOverlay("itemOverlay");
       refreshCurrentView();
@@ -1184,7 +1184,7 @@
     });
     $("#editItemBtn").addEventListener("click", ()=> openEditItem(item));
     $("#deleteItemBtn").addEventListener("click", async ()=>{
-      if(!confirm(`Remove "${item.name}" from the closet? This can't be undone.`)) return;
+      if(!confirm(`Remove "${item.name}" from the cupboard? This can't be undone.`)) return;
       try{
         await sb.from("outfit_items").delete().eq("item_id", id);
         const { error } = await sb.from("items").delete().eq("id", id);
