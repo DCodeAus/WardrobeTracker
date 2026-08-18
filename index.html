@@ -444,6 +444,41 @@
   .toggle-row input{width:auto;}
   .toggle-row label{margin:0; font-size:13px; color:var(--white); font-family:var(--font-body); text-transform:none; letter-spacing:0;}
 
+  .photo-preview-wrap{
+    position:relative;
+    width:120px; height:120px;
+    border-radius:4px;
+    overflow:hidden;
+    background:var(--panel);
+    border:1px solid var(--panel-line);
+    margin-bottom:10px;
+  }
+  .photo-preview-wrap img{width:100%; height:100%; object-fit:cover; display:block;}
+  .photo-remove-btn{
+    position:absolute; top:4px; right:4px;
+    background:rgba(0,0,0,.65); color:#fff; border:none;
+    border-radius:50%; width:22px; height:22px; font-size:12px; cursor:pointer;
+    line-height:1;
+  }
+  .tag-photo{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:3px;
+    margin-bottom:10px;
+    display:block;
+    background:var(--paper-shadow);
+  }
+  .detail-photo{
+    width:100%;
+    max-height:280px;
+    object-fit:cover;
+    border-radius:4px;
+    margin-bottom:16px;
+    background:var(--panel);
+    display:block;
+  }
+
   .drawer-actions{display:flex; gap:10px; margin-top:26px;}
   .btn-primary{
     flex:1; background:var(--brass); color:var(--ink); border:none;
@@ -666,6 +701,14 @@
     <div class="field">
       <label>Name</label>
       <input type="text" id="f-name" placeholder="e.g. Navy Oxford Shirt">
+    </div>
+    <div class="field">
+      <label>Photo (optional)</label>
+      <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none;">
+        <img id="photoPreviewImg" alt="">
+        <button type="button" class="photo-remove-btn" id="photoRemoveBtn">✕</button>
+      </div>
+      <input type="file" id="f-photo" accept="image/*">
     </div>
     <div class="field-row">
       <div class="field">
@@ -904,6 +947,8 @@
   let pendingWishId = null;
   let pendingRetireId = null;
   let currentUserId = null;
+  let pendingPhotoFile = null;
+  let removePhotoFlag = false;
 
   const $ = sel => document.querySelector(sel);
   const $$ = sel => Array.from(document.querySelectorAll(sel));
@@ -952,7 +997,9 @@
       createdAt: row.created_at ? new Date(row.created_at).getTime() : Date.now(),
       status: row.status || "active",
       retiredAt: row.retired_at,
-      resaleValue: row.resale_value
+      resaleValue: row.resale_value,
+      photoPath: row.photo_path,
+      photoUrl: null
     };
   }
   function itemObjToRow(data){
@@ -996,6 +1043,67 @@
     };
   }
 
+  // ---------- PHOTOS ----------
+  // Resize/compress in the browser before upload — phone photos can be
+  // several MB, nobody needs that for a wardrobe thumbnail.
+  function resizeImageFile(file, maxDim, quality){
+    maxDim = maxDim || 1000;
+    quality = quality || 0.82;
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onerror = ()=> reject(new Error("Couldn't read that file"));
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onerror = ()=> reject(new Error("Couldn't read that image"));
+        img.onload = ()=>{
+          let { width, height } = img;
+          if(width > maxDim || height > maxDim){
+            if(width >= height){ height = Math.round(height * maxDim / width); width = maxDim; }
+            else{ width = Math.round(width * maxDim / height); height = maxDim; }
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width; canvas.height = height;
+          canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+          canvas.toBlob(blob=>{
+            if(!blob) reject(new Error("Couldn't compress that image"));
+            else resolve(blob);
+          }, "image/jpeg", quality);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function uploadItemPhoto(itemId, file){
+    const blob = await resizeImageFile(file);
+    const path = `${currentUserId}/${itemId}.jpg`;
+    const { error } = await sb.storage.from("item-photos").upload(path, blob, { upsert:true, contentType:"image/jpeg" });
+    if(error) throw error;
+    return path;
+  }
+
+  async function deleteItemPhoto(path){
+    if(!path) return;
+    const { error } = await sb.storage.from("item-photos").remove([path]);
+    if(error) console.error("Couldn't delete photo from storage", error);
+  }
+
+  async function refreshPhotoUrls(items){
+    const withPhotos = items.filter(i=>i.photoPath);
+    if(withPhotos.length === 0) return;
+    try{
+      const paths = withPhotos.map(i=>i.photoPath);
+      const { data, error } = await sb.storage.from("item-photos").createSignedUrls(paths, 3600);
+      if(error) throw error;
+      const urlByPath = {};
+      (data||[]).forEach(d=>{ if(d.signedUrl) urlByPath[d.path] = d.signedUrl; });
+      withPhotos.forEach(i=>{ if(urlByPath[i.photoPath]) i.photoUrl = urlByPath[i.photoPath]; });
+    }catch(e){
+      console.error("Couldn't load photo previews", e);
+    }
+  }
+
   async function loadState(){
     try{
       const [itemsRes, outfitsRes, joinRes, wearLogRes, wishRes, settingsRes] = await Promise.all([
@@ -1025,6 +1133,8 @@
       state.settings = settingsRes.data
         ? settingsRowToObj(settingsRes.data)
         : { cullUnwornDays:90, cullCpwThreshold:15, categoryCaps:{} };
+
+      await refreshPhotoUrls(state.items);
     }catch(e){
       console.error("Load from Supabase failed", e);
       showToast("Couldn't load your cupboard — check the console");
@@ -1093,6 +1203,7 @@
       <div class="tag" data-id="${item.id}">
         <div class="stitch"></div>
         ${item.favourite ? `<div class="tag-fav">★</div>` : ""}
+        ${item.photoUrl ? `<img class="tag-photo" src="${escapeAttr(item.photoUrl)}" alt="">` : ""}
         <div class="tag-cat" style="background:${cat.color}">${cat.icon} ${cat.label}</div>
         <div class="tag-name">${escapeHtml(item.name)}</div>
         <div class="tag-brand">${item.brand ? escapeHtml(item.brand) : "&nbsp;"}</div>
@@ -1241,9 +1352,33 @@
     $("#f-notes").value = "";
     $("#f-fav").checked = false;
     editingItemId = null;
+    pendingPhotoFile = null;
+    removePhotoFlag = false;
+    $("#f-photo").value = "";
+    $("#photoPreviewWrap").style.display = "none";
     $("#itemDrawerTitle").textContent = "Hang a new item";
     $("#itemDrawerSub").textContent = "Fill in the tag";
   }
+
+  $("#f-photo").addEventListener("change", (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    pendingPhotoFile = file;
+    removePhotoFlag = false;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      $("#photoPreviewImg").src = ev.target.result;
+      $("#photoPreviewWrap").style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  $("#photoRemoveBtn").addEventListener("click", ()=>{
+    pendingPhotoFile = null;
+    removePhotoFlag = true;
+    $("#f-photo").value = "";
+    $("#photoPreviewWrap").style.display = "none";
+  });
 
   function openAddItem(){
     resetItemForm();
@@ -1265,6 +1400,15 @@
     $("#f-occasion").value = item.occasion || "everyday";
     $("#f-notes").value = item.notes || "";
     $("#f-fav").checked = !!item.favourite;
+    pendingPhotoFile = null;
+    removePhotoFlag = false;
+    $("#f-photo").value = "";
+    if(item.photoUrl){
+      $("#photoPreviewImg").src = item.photoUrl;
+      $("#photoPreviewWrap").style.display = "block";
+    }else{
+      $("#photoPreviewWrap").style.display = "none";
+    }
     $("#itemDrawerTitle").textContent = "Edit item";
     $("#itemDrawerSub").textContent = "Update the tag";
     closeOverlay("detailOverlay");
@@ -1292,13 +1436,52 @@
         const { data: row, error } = await sb.from("items").update(itemObjToRow(data)).eq("id", editingItemId).select().single();
         if(error) throw error;
         const item = state.items.find(i=>i.id === editingItemId);
+        const previousPhotoUrl = item.photoUrl;
         Object.assign(item, itemRowToObj(row));
+        item.photoUrl = previousPhotoUrl; // preserve unless we change the photo below
+
+        if(removePhotoFlag && item.photoPath){
+          try{
+            await deleteItemPhoto(item.photoPath);
+            await sb.from("items").update({ photo_path:null }).eq("id", editingItemId);
+            item.photoPath = null;
+            item.photoUrl = null;
+          }catch(photoErr){
+            console.error("Couldn't remove photo", photoErr);
+            showToast("Item saved, but couldn't remove the photo");
+          }
+        }else if(pendingPhotoFile){
+          try{
+            const path = await uploadItemPhoto(editingItemId, pendingPhotoFile);
+            await sb.from("items").update({ photo_path:path }).eq("id", editingItemId);
+            item.photoPath = path;
+            const { data: signed } = await sb.storage.from("item-photos").createSignedUrl(path, 3600);
+            item.photoUrl = signed ? signed.signedUrl : null;
+          }catch(photoErr){
+            console.error("Couldn't upload photo", photoErr);
+            showToast("Item saved, but the photo didn't upload");
+          }
+        }
         showToast("Item updated");
       }else{
         const { data: row, error } = await sb.from("items").insert(itemObjToRow(data)).select().single();
         if(error) throw error;
-        state.items.unshift(itemRowToObj(row));
+        const item = itemRowToObj(row);
+        state.items.unshift(item);
         showToast("Added to the cupboard");
+
+        if(pendingPhotoFile){
+          try{
+            const path = await uploadItemPhoto(row.id, pendingPhotoFile);
+            await sb.from("items").update({ photo_path:path }).eq("id", row.id);
+            item.photoPath = path;
+            const { data: signed } = await sb.storage.from("item-photos").createSignedUrl(path, 3600);
+            item.photoUrl = signed ? signed.signedUrl : null;
+          }catch(photoErr){
+            console.error("Couldn't upload photo", photoErr);
+            showToast("Added, but the photo didn't upload");
+          }
+        }
 
         // If this came from converting a wishlist entry, clear it out
         if(pendingWishId){
@@ -1320,6 +1503,8 @@
           }
         }
       }
+      pendingPhotoFile = null;
+      removePhotoFlag = false;
       closeOverlay("itemOverlay");
       refreshCurrentView();
     }catch(e){
@@ -1336,6 +1521,7 @@
     const cpw = costPerWear(item);
 
     $("#detailBody").innerHTML = `
+      ${item.photoUrl ? `<img class="detail-photo" src="${escapeAttr(item.photoUrl)}" alt="">` : ""}
       <div class="detail-tag" style="background:${cat.color}">${cat.icon} ${cat.label}</div>
       <h2>${escapeHtml(item.name)}${item.favourite ? " ★" : ""}</h2>
       <div class="drawer-sub">${item.brand ? escapeHtml(item.brand) : "No brand noted"}${item.color ? " · " + escapeHtml(item.color) : ""}</div>
@@ -1414,6 +1600,7 @@
         await sb.from("outfit_items").delete().eq("item_id", id);
         const { error } = await sb.from("items").delete().eq("id", id);
         if(error) throw error;
+        if(item.photoPath) deleteItemPhoto(item.photoPath);
         state.items = state.items.filter(i=>i.id !== id);
         state.outfits.forEach(o=> o.itemIds = o.itemIds.filter(iid=>iid!==id));
         closeOverlay("detailOverlay");
