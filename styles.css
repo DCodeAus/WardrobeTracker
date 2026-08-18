@@ -79,8 +79,7 @@
     content:"";
     position:absolute;
     left:20px; right:20px; top:96px; bottom:20px;
-    border-left:3px solid var(--brass-dim);
-    opacity:.5;
+    border-left:2px solid var(--panel-line);
     pointer-events:none;
   }
   .rail-brand{
