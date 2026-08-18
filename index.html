@@ -1447,7 +1447,8 @@
         const newOutfitCount = (outfit.wearCount||0)+1;
         const itemUpdates = outfit.itemIds.map(id=>{
           const item = state.items.find(i=>i.id===id);
-          return item ? { id, newCount:(item.wearCount||0)+1 } : null;
+          if(!item || (item.status && item.status !== "active")) return null;
+          return { id, newCount:(item.wearCount||0)+1 };
         }).filter(Boolean);
 
         try{
@@ -1460,9 +1461,11 @@
           if(failed) throw failed.error;
 
           const logRows = itemUpdates.map(u=>({ item_id:u.id, outfit_id:outfit.id }));
-          const { data: insertedLogs, error: logErr } = await sb.from("wear_log").insert(logRows).select();
-          if(logErr) throw logErr;
-          state.wearLog.unshift(...insertedLogs.map(r=>({ id:r.id, itemId:r.item_id, outfitId:r.outfit_id, wornAt:r.worn_at })));
+          if(logRows.length > 0){
+            const { data: insertedLogs, error: logErr } = await sb.from("wear_log").insert(logRows).select();
+            if(logErr) throw logErr;
+            state.wearLog.unshift(...insertedLogs.map(r=>({ id:r.id, itemId:r.item_id, outfitId:r.outfit_id, wornAt:r.worn_at })));
+          }
 
           outfit.wearCount = newOutfitCount;
           outfit.lastWorn = newLastWorn;
@@ -1471,7 +1474,7 @@
             item.wearCount = u.newCount;
             item.lastWorn = newLastWorn;
           });
-          showToast("Outfit wear logged");
+          showToast(logRows.length > 0 ? "Outfit wear logged" : "Outfit logged (all pieces retired, no items updated)");
           renderOutfits();
         }catch(e){
           console.error("Log outfit wear failed", e);
