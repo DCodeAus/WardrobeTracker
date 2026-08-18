@@ -9,25 +9,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --ink:#14171c;
-    --ink-2:#1c2027;
-    --panel:#20242c;
-    --panel-line:#31373f;
-    --paper:#f3ede0;
-    --paper-shadow:#d9d0ba;
+    --ink:#121213;
+    --ink-2:#1a1a1c;
+    --panel:#202022;
+    --panel-line:#333335;
+    --paper:#f4f4f2;
+    --paper-shadow:#d8d8d5;
     --brass:#c19a3f;
     --brass-dim:#8a712f;
-    --ink-text:#2a2620;
-    --text-soft:#a9b0ba;
-    --text-dim:#6b7280;
-    --white:#f6f4ee;
+    --ink-text:#26262b;
+    --text-soft:#adadb1;
+    --text-dim:#8a8a8f;
+    --white:#f5f5f3;
 
-    --tops:#4f8b86;
-    --bottoms:#c48a3d;
-    --outerwear:#8a3f42;
-    --dresses:#7a5c8f;
-    --shoes:#3f5c82;
-    --accessories:#6f7d4a;
+    --cat-chip:#3a3a3d;
 
     --font-display:'Zilla Slab', serif;
     --font-body:'IBM Plex Sans', sans-serif;
@@ -457,6 +452,20 @@
   .empty-state h3{font-family:var(--font-display); color:var(--white); font-size:20px; margin:0 0 8px;}
   .empty-state p{font-size:13px; max-width:320px; margin:0 auto 18px;}
 
+  /* ---------- INSIGHTS ---------- */
+  .bar-chart{display:flex; flex-direction:column; gap:12px; margin-bottom:36px;}
+  .bar-row{display:grid; grid-template-columns:84px 1fr 56px; align-items:center; gap:12px; font-family:var(--font-mono); font-size:12px; color:var(--text-soft);}
+  .bar-track{background:var(--panel); border:1px solid var(--panel-line); border-radius:3px; height:14px; overflow:hidden;}
+  .bar-fill{background:var(--brass); height:100%; border-radius:2px; transition:width .3s;}
+  .rank-list{display:flex; flex-direction:column; gap:8px; margin-bottom:36px;}
+  .rank-row{
+    display:flex; justify-content:space-between; align-items:center;
+    background:var(--panel); border:1px solid var(--panel-line); border-radius:4px;
+    padding:11px 14px; font-size:13px;
+  }
+  .rank-row .rr-name{font-weight:600;}
+  .rank-row .rr-meta{font-family:var(--font-mono); font-size:11px; color:var(--text-dim);}
+
   .toast{
     position:fixed; bottom:26px; left:50%; transform:translateX(-50%);
     background:var(--brass); color:var(--ink); padding:11px 20px;
@@ -501,9 +510,11 @@
       <button class="rail-item active" data-view="dashboard"><span class="hook"></span>Dashboard</button>
       <button class="rail-item" data-view="closet"><span class="hook"></span>Closet</button>
       <button class="rail-item" data-view="outfits"><span class="hook"></span>Outfits</button>
+      <button class="rail-item" data-view="insights"><span class="hook"></span>Insights</button>
     </div>
     <div class="rail-spacer"></div>
     <button class="rail-add" id="openAddItem">+ Hang new item</button>
+    <button class="rail-item" id="signOutBtn" style="margin:10px 14px 0;">Sign out</button>
   </nav>
 
   <main class="main">
@@ -550,6 +561,26 @@
       </div>
       <p class="page-sub">Combinations worth repeating. Log a wear and every piece in it counts too.</p>
       <div id="outfitsList"></div>
+    </section>
+
+    <!-- INSIGHTS -->
+    <section class="view" id="view-insights">
+      <div class="page-head"><h1 class="page-title">Insights</h1></div>
+      <p class="page-sub">Patterns pulled from your logged wears, not just current totals.</p>
+
+      <div class="stat-strip" id="insightsStatStrip"></div>
+
+      <div class="section-label">Wears by month</div>
+      <div class="bar-chart" id="monthlyChart"></div>
+
+      <div class="section-label">Least worn (owned, rarely reached for)</div>
+      <div class="rank-list" id="leastWornList"></div>
+
+      <div class="section-label">Worst cost per wear</div>
+      <div class="rank-list" id="cpwLeaderboard"></div>
+
+      <div class="section-label">Spend by category</div>
+      <div class="bar-chart" id="categoryChart"></div>
     </section>
 
   </main>
@@ -686,19 +717,19 @@
   "use strict";
 
   const CATS = {
-    tops:{label:"Top", color:"var(--tops)", icon:"👕"},
-    bottoms:{label:"Bottoms", color:"var(--bottoms)", icon:"👖"},
-    outerwear:{label:"Outerwear", color:"var(--outerwear)", icon:"🧥"},
-    dresses:{label:"Dress", color:"var(--dresses)", icon:"👗"},
-    shoes:{label:"Shoes", color:"var(--shoes)", icon:"👟"},
-    accessories:{label:"Accessory", color:"var(--accessories)", icon:"👜"}
+    tops:{label:"Top", color:"var(--cat-chip)", icon:"👕"},
+    bottoms:{label:"Bottoms", color:"var(--cat-chip)", icon:"👖"},
+    outerwear:{label:"Outerwear", color:"var(--cat-chip)", icon:"🧥"},
+    dresses:{label:"Dress", color:"var(--cat-chip)", icon:"👗"},
+    shoes:{label:"Shoes", color:"var(--cat-chip)", icon:"👟"},
+    accessories:{label:"Accessory", color:"var(--cat-chip)", icon:"👜"}
   };
 
   const SUPABASE_URL = "https://ubusmezepzilyrietest.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_nUHSZuWRE8l38dEZKUVyrg_1zSj9ukh";
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  let state = { items: [], outfits: [] };
+  let state = { items: [], outfits: [], wearLog: [] };
   let activeCategory = "all";
   let editingItemId = null;
   let outfitSelection = new Set();
@@ -772,24 +803,29 @@
 
   async function loadState(){
     try{
-      const [itemsRes, outfitsRes, joinRes] = await Promise.all([
+      const [itemsRes, outfitsRes, joinRes, wearLogRes] = await Promise.all([
         sb.from("items").select("*").order("created_at", { ascending:false }),
         sb.from("outfits").select("*").order("created_at", { ascending:false }),
-        sb.from("outfit_items").select("*")
+        sb.from("outfit_items").select("*"),
+        sb.from("wear_log").select("*").order("worn_at", { ascending:false })
       ]);
       if(itemsRes.error) throw itemsRes.error;
       if(outfitsRes.error) throw outfitsRes.error;
       if(joinRes.error) throw joinRes.error;
+      if(wearLogRes.error) throw wearLogRes.error;
 
       state.items = (itemsRes.data || []).map(itemRowToObj);
       state.outfits = (outfitsRes.data || []).map(row=>{
         const itemIds = (joinRes.data || []).filter(oi=>oi.outfit_id===row.id).map(oi=>oi.item_id);
         return outfitRowToObj(row, itemIds);
       });
+      state.wearLog = (wearLogRes.data || []).map(row=>({
+        id: row.id, itemId: row.item_id, outfitId: row.outfit_id, wornAt: row.worn_at
+      }));
     }catch(e){
       console.error("Load from Supabase failed", e);
       showToast("Couldn't load your closet — check the console");
-      state = { items: [], outfits: [] };
+      state = { items: [], outfits: [], wearLog: [] };
     }
   }
 
@@ -810,6 +846,7 @@
       if(btn.dataset.view === "dashboard") renderDashboard();
       if(btn.dataset.view === "closet") renderCloset();
       if(btn.dataset.view === "outfits") renderOutfits();
+      if(btn.dataset.view === "insights") renderInsights();
     });
   });
 
@@ -896,7 +933,7 @@
         const cat = CATS[item.category] || CATS.tops;
         return `
           <div class="redis-card" data-id="${item.id}" style="cursor:pointer">
-            <span class="cat-dot" style="background:${cat.color}"></span>${cat.label}
+            <span class="cat-dot" style="background:var(--brass)"></span>${cat.label}
             <div class="name">${escapeHtml(item.name)}</div>
             <div class="meta">${item.lastWorn ? daysSince(item.lastWorn) + " days idle" : "never worn"}</div>
           </div>
@@ -1101,8 +1138,11 @@
       try{
         const { error } = await sb.from("items").update({ wear_count:newCount, last_worn:newLastWorn }).eq("id", item.id);
         if(error) throw error;
+        const { data: logRow, error: logErr } = await sb.from("wear_log").insert({ item_id:item.id }).select().single();
+        if(logErr) throw logErr;
         item.wearCount = newCount;
         item.lastWorn = newLastWorn;
+        state.wearLog.unshift({ id:logRow.id, itemId:logRow.item_id, outfitId:logRow.outfit_id, wornAt:logRow.worn_at });
         showToast("Wear logged");
         openDetail(id);
         refreshCurrentView();
@@ -1180,6 +1220,11 @@
           const results = await Promise.all(calls);
           const failed = results.find(r=>r.error);
           if(failed) throw failed.error;
+
+          const logRows = itemUpdates.map(u=>({ item_id:u.id, outfit_id:outfit.id }));
+          const { data: insertedLogs, error: logErr } = await sb.from("wear_log").insert(logRows).select();
+          if(logErr) throw logErr;
+          state.wearLog.unshift(...insertedLogs.map(r=>({ id:r.id, itemId:r.item_id, outfitId:r.outfit_id, wornAt:r.worn_at })));
 
           outfit.wearCount = newOutfitCount;
           outfit.lastWorn = newLastWorn;
@@ -1270,11 +1315,96 @@
     }
   });
 
+  // ---------- INSIGHTS ----------
+  function renderInsights(){
+    const items = state.items;
+    const totalWearEvents = state.wearLog.length;
+    const neverWorn = items.filter(i => !(i.wearCount > 0)).length;
+    const totalValue = items.reduce((s,i)=> s + (parseFloat(i.price)||0), 0);
+    const pricedWorn = items.filter(i => costPerWear(i) !== null);
+    const avgCpw = pricedWorn.length
+      ? pricedWorn.reduce((s,i)=> s + costPerWear(i), 0) / pricedWorn.length
+      : null;
+
+    $("#insightsStatStrip").innerHTML = `
+      <div class="stat"><div class="stat-num">${totalWearEvents}</div><div class="stat-label">Wears logged</div></div>
+      <div class="stat"><div class="stat-num">${neverWorn}</div><div class="stat-label">Never worn</div></div>
+      <div class="stat"><div class="stat-num">${avgCpw !== null ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
+      <div class="stat"><div class="stat-num">${fmtMoney(totalValue)}</div><div class="stat-label">Wardrobe value</div></div>
+    `;
+
+    // Wears by month, last 6 months
+    const now = new Date();
+    const months = [];
+    for(let i=5; i>=0; i--){
+      const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+      months.push({ key: d.getFullYear()+"-"+d.getMonth(), label: d.toLocaleString("en-AU",{month:"short"}), count:0 });
+    }
+    state.wearLog.forEach(w=>{
+      const d = new Date(w.wornAt);
+      const key = d.getFullYear()+"-"+d.getMonth();
+      const m = months.find(m=>m.key===key);
+      if(m) m.count++;
+    });
+    const maxMonth = Math.max(...months.map(m=>m.count), 1);
+    $("#monthlyChart").innerHTML = totalWearEvents === 0
+      ? `<p class="empty-note">Log a few wears and this'll start showing your rhythm.</p>`
+      : months.map(m=>`
+          <div class="bar-row">
+            <span>${m.label}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${(m.count/maxMonth*100)}%"></div></div>
+            <span>${m.count}</span>
+          </div>
+        `).join("");
+
+    // Least worn, owned and worn at least once (never-worn is its own stat above)
+    const leastWorn = [...items].filter(i=>i.wearCount>0).sort((a,b)=>a.wearCount-b.wearCount).slice(0,6);
+    $("#leastWornList").innerHTML = leastWorn.length === 0
+      ? `<p class="empty-note">Nothing worn yet.</p>`
+      : leastWorn.map(i=>`
+          <div class="rank-row">
+            <span class="rr-name">${escapeHtml(i.name)}</span>
+            <span class="rr-meta">${i.wearCount}× · last ${i.lastWorn ? daysSince(i.lastWorn)+"d ago" : "—"}</span>
+          </div>
+        `).join("");
+
+    // Worst cost per wear
+    const cpwRanked = items.filter(i=>costPerWear(i)!==null).sort((a,b)=>costPerWear(b)-costPerWear(a)).slice(0,6);
+    $("#cpwLeaderboard").innerHTML = cpwRanked.length === 0
+      ? `<p class="empty-note">Add prices to your items to see this.</p>`
+      : cpwRanked.map(i=>`
+          <div class="rank-row">
+            <span class="rr-name">${escapeHtml(i.name)}</span>
+            <span class="rr-meta">${fmtMoney(costPerWear(i))}/wear · worn ${i.wearCount}×</span>
+          </div>
+        `).join("");
+
+    // Spend by category
+    const catTotals = {};
+    items.forEach(i=>{
+      if(!catTotals[i.category]) catTotals[i.category] = { value:0, count:0 };
+      catTotals[i.category].value += (parseFloat(i.price)||0);
+      catTotals[i.category].count += 1;
+    });
+    const maxCatValue = Math.max(...Object.values(catTotals).map(c=>c.value), 1);
+    const catEntries = Object.entries(catTotals).sort((a,b)=> b[1].value - a[1].value);
+    $("#categoryChart").innerHTML = catEntries.length === 0
+      ? `<p class="empty-note">Add items to see this.</p>`
+      : catEntries.map(([cat,v])=>`
+          <div class="bar-row">
+            <span>${CATS[cat] ? CATS[cat].label : cat}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${(v.value/maxCatValue*100)}%"></div></div>
+            <span>${fmtMoney(v.value)}</span>
+          </div>
+        `).join("");
+  }
+
   function refreshCurrentView(){
     const activeView = $(".view.active").id;
     if(activeView === "view-dashboard") renderDashboard();
     if(activeView === "view-closet") renderCloset();
     if(activeView === "view-outfits") renderOutfits();
+    if(activeView === "view-insights") renderInsights();
   }
 
   // ---------- AUTH ----------
@@ -1318,6 +1448,10 @@
   sb.auth.onAuthStateChange((event, session)=>{
     if(event === "SIGNED_IN") showApp();
     if(event === "SIGNED_OUT") showLogin();
+  });
+
+  $("#signOutBtn").addEventListener("click", async ()=>{
+    await sb.auth.signOut();
   });
 
   // ---------- INIT ----------
