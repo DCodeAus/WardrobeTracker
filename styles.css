@@ -128,9 +128,9 @@
   .rail-item:hover{background:var(--panel); color:var(--white);}
   .rail-item.active{
     background:var(--panel);
-    color:var(--brass);
+    color:var(--heading);
   }
-  .rail-item.active .hook{background:var(--brass);}
+  .rail-item.active .hook{background:var(--heading);}
   .hook{
     width:7px; height:7px; border-radius:50%;
     background:var(--panel-line);
