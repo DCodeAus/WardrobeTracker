@@ -4,6 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Off the Peg — Wardrobe Tracker</title>
+
+<!-- PWA / Add to Home Screen -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#121213">
+<link rel="icon" href="icons/icon-192.png">
+<!-- iOS doesn't read manifest.json for home screen behaviour — these tags do the equivalent job -->
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Off the Peg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -798,6 +808,13 @@
     <div class="drawer-actions">
       <button class="btn-primary" id="saveSettingsBtn">Save settings</button>
       <button class="btn-ghost" data-close="settingsOverlay">Cancel</button>
+    </div>
+
+    <div class="section-label" style="margin-top:28px;">Backup</div>
+    <p style="font-size:12px; color:var(--text-dim); margin:0 0 14px;">Your data lives in Supabase, not on this device. Worth grabbing a copy occasionally.</p>
+    <div class="drawer-actions" style="margin-top:0;">
+      <button class="btn-ghost" id="exportJsonBtn">Export everything (JSON)</button>
+      <button class="btn-ghost" id="exportCsvBtn">Export items (CSV)</button>
     </div>
   </div>
 </div>
@@ -1880,6 +1897,50 @@
     }
   });
 
+  // ---------- BACKUP / EXPORT ----------
+  function dateStamp(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function downloadFile(content, filename, mimeType){
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function csvEscape(val){
+    if(val === null || val === undefined) return "";
+    const s = String(val);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }
+
+  $("#exportJsonBtn").addEventListener("click", ()=>{
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      items: state.items,
+      outfits: state.outfits,
+      wearLog: state.wearLog,
+      wishlist: state.wishlist,
+      settings: state.settings
+    };
+    downloadFile(JSON.stringify(payload, null, 2), `off-the-peg-backup-${dateStamp()}.json`, "application/json");
+    showToast("Backup downloaded");
+  });
+
+  $("#exportCsvBtn").addEventListener("click", ()=>{
+    const headers = ["name","category","color","brand","price","season","occasion","notes","favourite","wearCount","lastWorn","status","resaleValue","createdAt"];
+    const rows = state.items.map(item => headers.map(h => csvEscape(item[h])).join(","));
+    const csv = [headers.join(","), ...rows].join("\n");
+    downloadFile(csv, `off-the-peg-items-${dateStamp()}.csv`, "text/csv");
+    showToast("CSV downloaded");
+  });
+
   // ---------- AUTH ----------
   async function showApp(){
     closeOverlay("authOverlay");
@@ -1942,6 +2003,15 @@
     }
   }
   init();
+
+  // Register the service worker so Chrome/Android offers a proper "Install app" prompt
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+      navigator.serviceWorker.register("service-worker.js").catch(err=>{
+        console.error("Service worker registration failed", err);
+      });
+    });
+  }
 
 })();
 </script>
