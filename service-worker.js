@@ -1,13 +1,11 @@
 // Minimal service worker — exists purely so Chrome/Android treats this as an
-// installable app. It only caches the static shell (HTML, fonts, icons).
-// Supabase API calls and CDN scripts are cross-origin and always go straight
-// to the network, so your wardrobe data is never served from a stale cache.
+// installable app. Static assets (fonts, icons) are cached for speed, but the
+// HTML shell and manifest are always fetched fresh over the network first —
+// caching those cache-first would mean app updates never reach an installed
+// copy until the service worker script itself changes.
 
-const CACHE_NAME = "off-the-peg-shell-v1";
-const SHELL_FILES = [
-  "./",
-  "./index.html",
-  "./manifest.json",
+const CACHE_NAME = "off-the-peg-shell-v2";
+const STATIC_ASSETS = [
   "./fonts/routed-gothic.woff2",
   "./fonts/routed-gothic-italic.woff2",
   "./fonts/routed-gothic-wide.woff2",
@@ -18,7 +16,7 @@ const SHELL_FILES = [
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(SHELL_FILES))
+      .then((cache) => cache.addAll(STATIC_ASSETS))
       .catch(() => {})
   );
   self.skipWaiting();
@@ -35,11 +33,27 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
-  // Only intervene for same-origin GET requests (the app shell).
-  // Everything else — Supabase, Google Fonts, the supabase-js CDN script — passes straight through.
   if (event.request.method !== "GET" || url.origin !== self.location.origin) {
+    return; // cross-origin (Supabase, CDN scripts) always goes straight to network
+  }
+
+  const isShellDoc = url.pathname.endsWith("/") || url.pathname.endsWith("index.html") || url.pathname.endsWith("manifest.json");
+  if (isShellDoc) {
+    // Network-first: always try to get the latest HTML/manifest. Only fall
+    // back to a cached copy if there's genuinely no connection.
+    event.respondWith(
+      fetch(event.request)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return res;
+        })
+        .catch(() => caches.match(event.request))
+    );
     return;
   }
+
+  // Cache-first for static assets that genuinely don't change often.
   event.respondWith(
     caches.match(event.request).then((cached) => cached || fetch(event.request))
   );
