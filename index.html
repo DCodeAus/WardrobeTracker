@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-title" content="Off the Peg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="vendor/supabase.js"></script>
 <style>
   /* Routed Gothic — a free (SIL OFL) recreation of Gorton, the mechanically-engraved
      font found on Manhattan elevator plaques, intercoms and building signage.
@@ -938,6 +938,19 @@
 
   const SUPABASE_URL = "https://ubusmezepzilyrietest.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_nUHSZuWRE8l38dEZKUVyrg_1zSj9ukh";
+
+  if(!window.supabase || !window.supabase.createClient){
+    document.body.innerHTML = `
+      <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; background:#121213; color:#f5f5f3; font-family:sans-serif; text-align:center;">
+        <div>
+          <h1 style="font-size:20px; margin-bottom:10px;">Couldn't load a required file</h1>
+          <p style="color:#adadb1; font-size:14px; max-width:360px;">The app's database library (vendor/supabase.js) didn't load. Check that the <code>vendor</code> folder was committed alongside index.html, then reload.</p>
+        </div>
+      </div>
+    `;
+    throw new Error("window.supabase is unavailable — vendor/supabase.js failed to load");
+  }
+
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   let state = { items: [], outfits: [], wearLog: [], wishlist: [], settings: { cullUnwornDays:90, cullCpwThreshold:15, categoryCaps:{} } };
