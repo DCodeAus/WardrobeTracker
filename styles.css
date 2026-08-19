@@ -79,7 +79,8 @@
     content:"";
     position:absolute;
     left:20px; right:20px; top:96px; bottom:20px;
-    border-left:2px solid var(--panel-line);
+    border-left:1px solid var(--panel-line);
+    opacity:.4;
     pointer-events:none;
   }
   .rail-brand{
@@ -474,8 +475,16 @@
     padding:12px 16px; border-radius:3px; font-size:13px; cursor:pointer;
   }
   .btn-ghost:hover{border-color:var(--text-dim); color:var(--white);}
+  .btn-ghost:disabled{opacity:.45; cursor:not-allowed;}
+  .btn-ghost:disabled:hover{border-color:var(--panel-line); color:var(--text-soft);}
   .btn-danger{color:#c96a6a; border-color:#5c3535;}
   .btn-danger:hover{background:#3a2020; border-color:#8a3f3f;}
+
+  .soon-chip{
+    font-family:var(--font-mono); font-size:10px; text-transform:uppercase;
+    letter-spacing:.08em; padding:3px 8px; border-radius:20px;
+    background:var(--panel-line); color:var(--text-dim);
+  }
 
   .close-x{
     position:absolute; top:26px; right:24px; background:none; border:none;
