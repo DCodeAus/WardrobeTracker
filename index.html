@@ -31,6 +31,22 @@
         <div class="rail-brand">
           Off the Peg<small>Wardrobe Log · Dan</small>
         </div>
+        <div
+          id="demoBanner"
+          style="
+            display: none;
+            margin: 0 14px 10px;
+            padding: 8px 10px;
+            background: #2c2716;
+            border: 1px solid var(--brass-dim);
+            border-radius: 3px;
+            font-size: 11px;
+            color: var(--brass);
+            text-align: center;
+          "
+        >
+          Demo data — nothing saved
+        </div>
         <div class="rail-nav">
           <button class="rail-item active" data-view="dashboard">
             <span class="hook"></span>Dashboard
@@ -476,6 +492,21 @@
           <button class="btn-primary" id="signInBtn">Sign in</button>
           <button class="btn-ghost" id="signUpBtn">Sign up</button>
         </div>
+        <div
+          style="
+            text-align: center;
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px solid var(--panel-line);
+          "
+        >
+          <button class="btn-ghost" id="tryDemoBtn" style="width: 100%">
+            Just looking? Try the demo
+          </button>
+          <p style="font-size: 11px; color: var(--text-dim); margin: 8px 0 0">
+            Sample data only — nothing you do here is saved
+          </p>
+        </div>
       </div>
     </div>
 
@@ -542,6 +573,7 @@
         let pendingWishId = null;
         let pendingRetireId = null;
         let currentUserId = null;
+        let isDemoMode = false;
         let pendingPhotoFile = null;
         let removePhotoFlag = false;
 
@@ -552,6 +584,293 @@
           return (
             Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
           );
+        }
+
+        // ---------- DEMO DATA ----------
+        // Entirely local, never touches Supabase. Lets someone click around the
+        // whole app without an account, and lets a returning user poke at things
+        // without risking their real data.
+        function loadDemoData() {
+          const now = Date.now();
+          const daysAgo = (n) => new Date(now - n * 86400000).toISOString();
+
+          state.items = [
+            {
+              id: "demo-1",
+              name: "Navy Oxford Shirt",
+              category: "tops",
+              color: "Navy",
+              brand: "Van Heusen",
+              price: 89.95,
+              season: "all",
+              occasion: "work",
+              notes: "",
+              favourite: true,
+              wearCount: 12,
+              lastWorn: daysAgo(5),
+              createdAt: now - 200 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-2",
+              name: "Comfort Craftsman Boots",
+              category: "shoes",
+              color: "Chestnut",
+              brand: "RM Williams",
+              price: 699,
+              season: "all",
+              occasion: "formal",
+              notes: "Size 9",
+              favourite: true,
+              wearCount: 3,
+              lastWorn: daysAgo(60),
+              createdAt: now - 180 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-3",
+              name: "Charcoal Wool Suit",
+              category: "outerwear",
+              color: "Charcoal",
+              brand: "",
+              price: 650,
+              season: "mid",
+              occasion: "formal",
+              notes: "Wedding suit",
+              favourite: false,
+              wearCount: 1,
+              lastWorn: daysAgo(200),
+              createdAt: now - 220 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-4",
+              name: "Black Chinos",
+              category: "bottoms",
+              color: "Black",
+              brand: "Uniqlo",
+              price: 79.95,
+              season: "all",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 20,
+              lastWorn: daysAgo(2),
+              createdAt: now - 160 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-5",
+              name: "Grey Marle Tee",
+              category: "tops",
+              color: "Grey",
+              brand: "",
+              price: 35,
+              season: "summer",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 0,
+              lastWorn: null,
+              createdAt: now - 40 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-6",
+              name: "Leather Belt",
+              category: "accessories",
+              color: "Brown",
+              brand: "",
+              price: 59.95,
+              season: "all",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 15,
+              lastWorn: daysAgo(2),
+              createdAt: now - 150 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-7",
+              name: "Denim Jacket",
+              category: "outerwear",
+              color: "Blue",
+              brand: "",
+              price: 149.95,
+              season: "mid",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 8,
+              lastWorn: daysAgo(20),
+              createdAt: now - 120 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-8",
+              name: "Chelsea Boots",
+              category: "shoes",
+              color: "Black",
+              brand: "",
+              price: 259.95,
+              season: "all",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 0,
+              lastWorn: null,
+              createdAt: now - 15 * 86400000,
+              status: "active",
+              retiredAt: null,
+              resaleValue: null,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-9",
+              name: "Old Running Shoes",
+              category: "shoes",
+              color: "White",
+              brand: "",
+              price: 120,
+              season: "all",
+              occasion: "active",
+              notes: "",
+              favourite: false,
+              wearCount: 2,
+              lastWorn: daysAgo(150),
+              createdAt: now - 300 * 86400000,
+              status: "donated",
+              retiredAt: daysAgo(30),
+              resaleValue: 0,
+              photoPath: null,
+              photoUrl: null,
+            },
+            {
+              id: "demo-10",
+              name: "Faded Band Tee",
+              category: "tops",
+              color: "Black",
+              brand: "",
+              price: 25,
+              season: "all",
+              occasion: "everyday",
+              notes: "",
+              favourite: false,
+              wearCount: 40,
+              lastWorn: daysAgo(100),
+              createdAt: now - 400 * 86400000,
+              status: "sold",
+              retiredAt: daysAgo(60),
+              resaleValue: 15,
+              photoPath: null,
+              photoUrl: null,
+            },
+          ];
+
+          state.outfits = [
+            {
+              id: "demo-outfit-1",
+              name: "Client Meeting",
+              itemIds: ["demo-1", "demo-4", "demo-2"],
+              wearCount: 4,
+              lastWorn: daysAgo(5),
+              createdAt: now - 100 * 86400000,
+            },
+            {
+              id: "demo-outfit-2",
+              name: "Weekend Casual",
+              itemIds: ["demo-5", "demo-7"],
+              wearCount: 6,
+              lastWorn: daysAgo(20),
+              createdAt: now - 90 * 86400000,
+            },
+          ];
+
+          // Spread wear events across the last several months so the Insights
+          // monthly chart actually has a shape rather than one lonely bar.
+          state.wearLog = [];
+          const wearPattern = [
+            ["demo-1", 5],
+            ["demo-1", 35],
+            ["demo-1", 65],
+            ["demo-1", 95],
+            ["demo-4", 2],
+            ["demo-4", 10],
+            ["demo-4", 40],
+            ["demo-4", 70],
+            ["demo-4", 100],
+            ["demo-6", 2],
+            ["demo-6", 25],
+            ["demo-6", 55],
+            ["demo-7", 20],
+            ["demo-7", 50],
+            ["demo-2", 60],
+            ["demo-2", 130],
+            ["demo-3", 200],
+          ];
+          wearPattern.forEach(([itemId, days]) => {
+            state.wearLog.push({
+              id: uid(),
+              itemId,
+              outfitId: null,
+              wornAt: daysAgo(days),
+            });
+          });
+
+          state.wishlist = [
+            {
+              id: "demo-wish-1",
+              name: "Merino Knit Jumper",
+              category: "tops",
+              price: 129,
+              notes: "Saw it in the David Jones sale",
+              createdAt: daysAgo(3),
+            },
+            {
+              id: "demo-wish-2",
+              name: "Leather Weekend Bag",
+              category: "accessories",
+              price: 249,
+              notes: "For the Brisbane trips",
+              createdAt: daysAgo(10),
+            },
+          ];
+
+          state.settings = {
+            cullUnwornDays: 90,
+            cullCpwThreshold: 15,
+            categoryCaps: { shoes: 3 },
+          };
         }
 
         function daysSince(dateStr) {
@@ -1142,6 +1461,56 @@
             favourite: $("#f-fav").checked,
           };
 
+          if (isDemoMode) {
+            if (editingItemId) {
+              const item = state.items.find((i) => i.id === editingItemId);
+              Object.assign(item, data);
+              if (removePhotoFlag) item.photoUrl = null;
+              else if (pendingPhotoFile)
+                item.photoUrl = $("#photoPreviewImg").src;
+              showToast("Item updated (demo — not saved)");
+            } else {
+              const item = {
+                id: uid(),
+                ...data,
+                wearCount: 0,
+                lastWorn: null,
+                createdAt: Date.now(),
+                status: "active",
+                retiredAt: null,
+                resaleValue: null,
+                photoPath: null,
+                photoUrl: pendingPhotoFile ? $("#photoPreviewImg").src : null,
+              };
+              state.items.unshift(item);
+              showToast("Added (demo — not saved)");
+              if (pendingWishId) {
+                state.wishlist = state.wishlist.filter(
+                  (w) => w.id !== pendingWishId,
+                );
+                pendingWishId = null;
+              }
+              const cap = state.settings.categoryCaps[data.category];
+              if (
+                cap &&
+                activeItems().filter((i) => i.category === data.category)
+                  .length > cap
+              ) {
+                const label = CATS[data.category]
+                  ? CATS[data.category].label
+                  : data.category;
+                showToast(
+                  `Over your ${label} cap (${cap}) — worth retiring one`,
+                );
+              }
+            }
+            pendingPhotoFile = null;
+            removePhotoFlag = false;
+            closeOverlay("itemOverlay");
+            refreshCurrentView();
+            return;
+          }
+
           try {
             if (editingItemId) {
               const { data: row, error } = await sb
@@ -1311,6 +1680,15 @@
 
           if (item.status && item.status !== "active") {
             $("#restoreItemBtn").addEventListener("click", async () => {
+              if (isDemoMode) {
+                item.status = "active";
+                item.retiredAt = null;
+                item.resaleValue = null;
+                showToast("Back in the cupboard (demo)");
+                openDetail(id);
+                refreshCurrentView();
+                return;
+              }
               try {
                 const { error } = await sb
                   .from("items")
@@ -1336,6 +1714,20 @@
             $("#logWearBtn").addEventListener("click", async () => {
               const newCount = (item.wearCount || 0) + 1;
               const newLastWorn = new Date().toISOString();
+              if (isDemoMode) {
+                item.wearCount = newCount;
+                item.lastWorn = newLastWorn;
+                state.wearLog.unshift({
+                  id: uid(),
+                  itemId: item.id,
+                  outfitId: null,
+                  wornAt: newLastWorn,
+                });
+                showToast("Wear logged (demo)");
+                openDetail(id);
+                refreshCurrentView();
+                return;
+              }
               try {
                 const { error } = await sb
                   .from("items")
@@ -1374,6 +1766,16 @@
               )
             )
               return;
+            if (isDemoMode) {
+              state.items = state.items.filter((i) => i.id !== id);
+              state.outfits.forEach(
+                (o) => (o.itemIds = o.itemIds.filter((iid) => iid !== id)),
+              );
+              closeOverlay("detailOverlay");
+              showToast("Removed (demo)");
+              refreshCurrentView();
+              return;
+            }
             try {
               await sb.from("outfit_items").delete().eq("item_id", id);
               const { error } = await sb.from("items").delete().eq("id", id);
@@ -1447,6 +1849,25 @@
                 })
                 .filter(Boolean);
 
+              if (isDemoMode) {
+                outfit.wearCount = newOutfitCount;
+                outfit.lastWorn = newLastWorn;
+                itemUpdates.forEach((u) => {
+                  const item = state.items.find((i) => i.id === u.id);
+                  item.wearCount = u.newCount;
+                  item.lastWorn = newLastWorn;
+                  state.wearLog.unshift({
+                    id: uid(),
+                    itemId: u.id,
+                    outfitId: outfit.id,
+                    wornAt: newLastWorn,
+                  });
+                });
+                showToast("Outfit wear logged (demo)");
+                renderOutfits();
+                return;
+              }
+
               try {
                 const calls = [
                   sb
@@ -1512,6 +1933,14 @@
           list.querySelectorAll("[data-del]").forEach((btn) => {
             btn.addEventListener("click", async () => {
               if (!confirm("Delete this outfit?")) return;
+              if (isDemoMode) {
+                state.outfits = state.outfits.filter(
+                  (o) => o.id !== btn.dataset.del,
+                );
+                showToast("Deleted (demo)");
+                renderOutfits();
+                return;
+              }
               try {
                 await sb
                   .from("outfit_items")
@@ -1586,6 +2015,21 @@
             return;
           }
           const itemIds = Array.from(outfitSelection);
+
+          if (isDemoMode) {
+            state.outfits.unshift({
+              id: uid(),
+              name,
+              itemIds,
+              wearCount: 0,
+              lastWorn: null,
+              createdAt: Date.now(),
+            });
+            closeOverlay("outfitOverlay");
+            showToast("Outfit saved (demo)");
+            renderOutfits();
+            return;
+          }
 
           try {
             const { data: row, error } = await sb
@@ -1795,6 +2239,21 @@
           const status = $("#retire-status").value;
           const resaleValue = parseFloat($("#retire-value").value) || null;
           const retiredAt = new Date().toISOString();
+
+          if (isDemoMode) {
+            const item = state.items.find((i) => i.id === pendingRetireId);
+            if (item) {
+              item.status = status;
+              item.resaleValue = resaleValue;
+              item.retiredAt = retiredAt;
+            }
+            closeOverlay("retireOverlay");
+            showToast("Retired (demo)");
+            pendingRetireId = null;
+            refreshCurrentView();
+            return;
+          }
+
           try {
             const { error } = await sb
               .from("items")
@@ -1940,6 +2399,13 @@
           list.querySelectorAll("[data-remove-wish]").forEach((btn) => {
             btn.addEventListener("click", async () => {
               if (!confirm("Remove this from your wishlist?")) return;
+              if (isDemoMode) {
+                state.wishlist = state.wishlist.filter(
+                  (w) => w.id !== btn.dataset.removeWish,
+                );
+                renderWishlist();
+                return;
+              }
               try {
                 const { error } = await sb
                   .from("wishlist")
@@ -1973,6 +2439,22 @@
             showToast("Give it a name first");
             return;
           }
+
+          if (isDemoMode) {
+            state.wishlist.unshift({
+              id: uid(),
+              name,
+              category: $("#w-category").value,
+              price: parseFloat($("#w-price").value) || null,
+              notes: $("#w-notes").value.trim(),
+              createdAt: new Date().toISOString(),
+            });
+            closeOverlay("wishOverlay");
+            showToast("Added to wishlist (demo)");
+            renderWishlist();
+            return;
+          }
+
           try {
             const { data: row, error } = await sb
               .from("wishlist")
@@ -2023,6 +2505,15 @@
             const v = $("#cap-" + c).value;
             if (v !== "") categoryCaps[c] = parseInt(v);
           });
+
+          if (isDemoMode) {
+            state.settings = { cullUnwornDays, cullCpwThreshold, categoryCaps };
+            closeOverlay("settingsOverlay");
+            showToast("Settings saved (demo)");
+            refreshCurrentView();
+            return;
+          }
+
           if (!currentUserId) {
             showToast("Not signed in — try refreshing");
             return;
@@ -2168,6 +2659,21 @@
             "Check your email to confirm, then sign in.";
         });
 
+        $("#tryDemoBtn").addEventListener("click", () => {
+          isDemoMode = true;
+          currentUserId = null;
+          loadDemoData();
+          closeOverlay("authOverlay");
+          $("#demoBanner").style.display = "block";
+          $$(".rail-item[data-view]").forEach((b) =>
+            b.classList.remove("active"),
+          );
+          $('.rail-item[data-view="dashboard"]').classList.add("active");
+          $$(".view").forEach((v) => v.classList.remove("active"));
+          $("#view-dashboard").classList.add("active");
+          refreshCurrentView();
+        });
+
         sb.auth.onAuthStateChange((event, session) => {
           if (event === "SIGNED_IN") {
             currentUserId = session?.user?.id || null;
@@ -2177,6 +2683,12 @@
         });
 
         $("#signOutBtn").addEventListener("click", async () => {
+          if (isDemoMode) {
+            isDemoMode = false;
+            $("#demoBanner").style.display = "none";
+            showLogin();
+            return;
+          }
           await sb.auth.signOut();
         });
 
