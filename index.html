@@ -576,6 +576,7 @@
         let isDemoMode = false;
         let pendingPhotoFile = null;
         let removePhotoFlag = false;
+        let photoRefreshInterval = null;
 
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => Array.from(document.querySelectorAll(sel));
@@ -2287,16 +2288,13 @@
 
           const candidates = items
             .filter((i) => {
-              const neverWorn = !(i.wearCount > 0);
               const idleDays = i.lastWorn
                 ? daysSince(i.lastWorn)
                 : daysSince(new Date(i.createdAt).toISOString());
               const idleLongEnough = idleDays >= s.cullUnwornDays;
               const cpw = costPerWear(i);
               const badValue = cpw !== null && cpw >= s.cullCpwThreshold;
-              return (
-                (neverWorn && idleLongEnough) || idleLongEnough || badValue
-              );
+              return idleLongEnough || badValue;
             })
             .sort((a, b) => {
               const da = a.lastWorn
@@ -2609,9 +2607,24 @@
           await loadState();
           document.body.style.opacity = "1";
           refreshCurrentView();
+
+          // Signed photo URLs expire after an hour — keep them alive while the
+          // app stays open (PWA sessions can run for a long time uninterrupted).
+          if (photoRefreshInterval) clearInterval(photoRefreshInterval);
+          photoRefreshInterval = setInterval(
+            async () => {
+              await refreshPhotoUrls(state.items);
+              refreshCurrentView();
+            },
+            50 * 60 * 1000,
+          );
         }
 
         function showLogin() {
+          if (photoRefreshInterval) {
+            clearInterval(photoRefreshInterval);
+            photoRefreshInterval = null;
+          }
           currentUserId = null;
           state = {
             items: [],
