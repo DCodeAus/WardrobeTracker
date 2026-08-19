@@ -24,7 +24,7 @@ Plain HTML/CSS/JS, no build step, no framework. Deliberately simple:
 
 - **[Supabase](https://supabase.com)** — Postgres database, auth, and file storage for photos
 - **[Three.js](https://threejs.org)** — a small decorative 3D flourish on the sign-in screen only; fully isolated, the app works with or without it
-- **Routed Gothic** — a free ([SIL OFL](https://scripts.sil.org/OFL)) digitisation of _Gorton_, the mechanically-engraved lettering found on elevator plaques and building signage around Manhattan
+- **[Routed Gothic](https://webonastick.com/)** by Darren Embry — a free ([SIL OFL](https://scripts.sil.org/OFL)) digitisation of _Gorton_, the mechanically-engraved lettering found on elevator plaques and building signage around Manhattan
 - All third-party JS (`supabase-js`, `three.js`) is self-hosted in `/vendor` rather than pulled from a CDN at runtime — one less thing that can silently break the app if a CDN request fails
 
 ## Setup
