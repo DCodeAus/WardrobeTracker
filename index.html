@@ -2253,29 +2253,44 @@
           shape.holes.push(hole);
 
           const geometry = new THREE.ExtrudeGeometry(shape, {
-            depth: 0.12,
+            depth: 0.08,
             bevelEnabled: true,
-            bevelThickness: 0.02,
-            bevelSize: 0.02,
+            bevelThickness: 0.015,
+            bevelSize: 0.015,
             bevelSegments: 3,
             curveSegments: 24,
           });
           geometry.center();
 
+          // Paper-white card, not metal — this is what actually reads as a price
+          // tag rather than a keyring fob. Gold is reserved for the eyelet ring,
+          // a small nod to cost without making the whole tag look like jewellery.
           const material = new THREE.MeshStandardMaterial({
-            color: 0xf0b429,
-            metalness: 0.55,
-            roughness: 0.35,
+            color: 0xf4f4f2,
+            metalness: 0.05,
+            roughness: 0.8,
           });
           const tag = new THREE.Mesh(geometry, material);
           tag.rotation.x = 0.25;
           scene.add(tag);
 
-          scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-          const key = new THREE.DirectionalLight(0xfff2d9, 1.1);
+          const eyelet = new THREE.Mesh(
+            new THREE.TorusGeometry(0.09, 0.014, 12, 32),
+            new THREE.MeshStandardMaterial({
+              color: 0xf0b429,
+              metalness: 0.6,
+              roughness: 0.3,
+            }),
+          );
+          eyelet.rotation.x = Math.PI / 2;
+          eyelet.position.set(0, 0.58, 0.045);
+          tag.add(eyelet);
+
+          scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+          const key = new THREE.DirectionalLight(0xfff2d9, 0.9);
           key.position.set(2, 2, 3);
           scene.add(key);
-          const rim = new THREE.DirectionalLight(0x6e9bc7, 0.4);
+          const rim = new THREE.DirectionalLight(0x6e9bc7, 0.5);
           rim.position.set(-2, -1, -2);
           scene.add(rim);
 
