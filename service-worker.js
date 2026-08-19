@@ -4,11 +4,14 @@
 // that changes during active development must never be cache-first, or an
 // installed copy can get stuck showing an old version indefinitely.
 
-const CACHE_NAME = "off-the-peg-shell-v4";
+const CACHE_NAME = "off-the-peg-shell-v5";
 const STATIC_ASSETS = [
   "./fonts/routed-gothic.woff2",
   "./fonts/routed-gothic-italic.woff2",
   "./fonts/routed-gothic-wide.woff2",
+  "./fonts/ibm-plex-sans.woff2",
+  "./fonts/ibm-plex-mono.woff2",
+  "./fonts/ibm-plex-mono-medium.woff2",
   "./icons/icon-192.png",
   "./icons/icon-512.png"
 ];

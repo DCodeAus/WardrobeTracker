@@ -11,17 +11,13 @@
     <link rel="icon" href="icons/icon-192.png" />
     <!-- iOS doesn't read manifest.json for home screen behaviour — these tags do the equivalent job -->
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
     <meta name="apple-mobile-web-app-title" content="Off the Peg" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
-      rel="stylesheet"
-    />
     <script src="vendor/supabase.js"></script>
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -31,6 +27,16 @@
         <div class="rail-brand">
           Off the Peg<small>Wardrobe Log · Dan</small>
         </div>
+        <details class="rail-features">
+          <summary>Features</summary>
+          <ul>
+            <li>Cost-per-wear on everything</li>
+            <li>Outfit wear logging</li>
+            <li>Cull suggestions</li>
+            <li>7-day wishlist cooling-off</li>
+            <li>AI tools <span class="soon-chip">Soon</span></li>
+          </ul>
+        </details>
         <div
           id="demoBanner"
           style="
@@ -201,7 +207,7 @@
     <!-- ADD / EDIT ITEM DRAWER -->
     <div class="overlay" id="itemOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="itemOverlay">✕</button>
+        <button class="close-x" data-close="itemOverlay" aria-label="Close">✕</button>
         <h2 id="itemDrawerTitle">Hang a new item</h2>
         <div class="drawer-sub" id="itemDrawerSub">Fill in the tag</div>
 
@@ -301,7 +307,7 @@
     <!-- ITEM DETAIL DRAWER -->
     <div class="overlay" id="detailOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="detailOverlay">✕</button>
+        <button class="close-x" data-close="detailOverlay" aria-label="Close">✕</button>
         <div id="detailBody"></div>
       </div>
     </div>
@@ -309,7 +315,7 @@
     <!-- ADD OUTFIT DRAWER -->
     <div class="overlay" id="outfitOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="outfitOverlay">✕</button>
+        <button class="close-x" data-close="outfitOverlay" aria-label="Close">✕</button>
         <h2>Build an outfit</h2>
         <div class="drawer-sub">Pick the pieces that go together</div>
         <div class="field">
@@ -334,7 +340,7 @@
     <!-- RETIRE ITEM DRAWER -->
     <div class="overlay" id="retireOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="retireOverlay">✕</button>
+        <button class="close-x" data-close="retireOverlay" aria-label="Close">✕</button>
         <h2>Retire this piece</h2>
         <div class="drawer-sub" id="retireItemName"></div>
         <div class="field">
@@ -342,7 +348,7 @@
           <select id="retire-status">
             <option value="donated">Donated</option>
             <option value="sold">Sold</option>
-            <option value="binned">Binned</option>
+            <option value="binned">Chucked out</option>
           </select>
         </div>
         <div class="field">
@@ -367,7 +373,7 @@
     <!-- SETTINGS DRAWER -->
     <div class="overlay" id="settingsOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="settingsOverlay">✕</button>
+        <button class="close-x" data-close="settingsOverlay" aria-label="Close">✕</button>
         <h2>Settings</h2>
         <div class="drawer-sub">
           Tune what counts as a cull candidate, and cap how many of each
@@ -432,7 +438,7 @@
     <!-- ADD TO WISHLIST DRAWER -->
     <div class="overlay" id="wishOverlay">
       <div class="drawer">
-        <button class="close-x" data-close="wishOverlay">✕</button>
+        <button class="close-x" data-close="wishOverlay" aria-label="Close">✕</button>
         <h2>Add to wishlist</h2>
         <div class="drawer-sub">
           Sits here for 7 days before you can add it for real
@@ -932,6 +938,13 @@
 
         function activeItems() {
           return state.items.filter((i) => (i.status || "active") === "active");
+        }
+
+        // "binned" stays the stored value (matches the DB check constraint) —
+        // this is just the friendlier word for it on screen.
+        const STATUS_LABELS = { donated: "Donated", sold: "Sold", binned: "Chucked out" };
+        function statusLabel(status) {
+          return STATUS_LABELS[status] || status;
         }
 
         // ---------- STORAGE (Supabase) ----------
@@ -1684,7 +1697,7 @@
       <h2>${escapeHtml(item.name)}${item.favourite ? " ★" : ""}</h2>
       <div class="drawer-sub">${item.brand ? escapeHtml(item.brand) : "No brand noted"}${item.color ? " · " + escapeHtml(item.color) : ""}</div>
 
-      ${item.status && item.status !== "active" ? `<div class="detail-tag" style="background:var(--panel-line); color:var(--text-soft);">Retired · ${item.status}${item.resaleValue ? " · " + fmtMoney(item.resaleValue) : ""}</div>` : ""}
+      ${item.status && item.status !== "active" ? `<div class="detail-tag" style="background:var(--panel-line); color:var(--text-soft);">Retired · ${statusLabel(item.status)}${item.resaleValue ? " · " + fmtMoney(item.resaleValue) : ""}</div>` : ""}
 
       <div class="detail-stats">
         <div class="detail-stat"><div class="n">${item.wearCount || 0}</div><div class="l">Times worn</div></div>
@@ -1811,7 +1824,7 @@
                 (o) => (o.itemIds = o.itemIds.filter((iid) => iid !== id)),
               );
               closeOverlay("detailOverlay");
-              showToast("Removed (demo)");
+              showToast("Gone, no dramas (demo)");
               refreshCurrentView();
               return;
             }
@@ -1825,7 +1838,7 @@
                 (o) => (o.itemIds = o.itemIds.filter((iid) => iid !== id)),
               );
               closeOverlay("detailOverlay");
-              showToast("Removed");
+              showToast("Gone, no dramas");
               refreshCurrentView();
             } catch (e) {
               console.error("Delete item failed", e);
@@ -2244,7 +2257,7 @@
                     (i) => `
           <div class="rank-row">
             <span class="rr-name">${escapeHtml(i.name)}</span>
-            <span class="rr-meta">${i.status}${i.resaleValue ? " · " + fmtMoney(i.resaleValue) : ""} · ${i.retiredAt ? daysSince(i.retiredAt) + "d ago" : ""}</span>
+            <span class="rr-meta">${statusLabel(i.status)}${i.resaleValue ? " · " + fmtMoney(i.resaleValue) : ""} · ${i.retiredAt ? daysSince(i.retiredAt) + "d ago" : ""}</span>
           </div>
         `,
                   )
@@ -2387,7 +2400,7 @@
         function renderWishlist() {
           const list = $("#wishlistList");
           if (state.wishlist.length === 0) {
-            list.innerHTML = `<div class="empty-state"><div class="glyph">🕰️</div><h3>Nothing waiting</h3><p>Add something you're tempted by. It sits here for 7 days before you can add it for real.</p><button class="btn-primary" style="max-width:220px;margin:0 auto;" id="addWish-inline">Add to wishlist</button></div>`;
+            list.innerHTML = `<div class="empty-state"><div class="glyph">🕰️</div><h3>Nothing waiting</h3><p>Add something you're tempted by. It sits here for 7 days before you can add it for real. Have a good hard think before you add another jacket.</p><button class="btn-primary" style="max-width:220px;margin:0 auto;" id="addWish-inline">Add to wishlist</button></div>`;
             $("#addWish-inline").addEventListener("click", openAddWish);
             return;
           }

@@ -25,7 +25,8 @@ Plain HTML/CSS/JS, no build step, no framework. Deliberately simple:
 - **[Supabase](https://supabase.com)** — Postgres database, auth, and file storage for photos
 - **[Three.js](https://threejs.org)** — a small decorative 3D flourish on the sign-in screen only; fully isolated, the app works with or without it
 - **[Routed Gothic](https://webonastick.com/)** by Darren Embry — a free ([SIL OFL](https://scripts.sil.org/OFL)) digitisation of _Gorton_, the mechanically-engraved lettering found on elevator plaques and building signage around Manhattan
-- All third-party JS (`supabase-js`, `three.js`) is self-hosted in `/vendor` rather than pulled from a CDN at runtime — one less thing that can silently break the app if a CDN request fails
+- **[IBM Plex Sans / Mono](https://github.com/IBM/plex)** — free ([SIL OFL](https://scripts.sil.org/OFL)), used for body text and numbers
+- All third-party JS (`supabase-js`, `three.js`) and fonts are self-hosted in `/vendor` and `/fonts` rather than pulled from a CDN at runtime — one less thing that can silently break the app if a CDN request fails
 
 ## Setup
 
@@ -76,7 +77,9 @@ This is a static site, any static host works, but it was built and tested agains
 │   └── three.core.min.js   Three.js's own internal dependency
 ├── fonts/
 │   ├── routed-gothic*.woff2
-│   └── routed-gothic-LICENSE.md
+│   ├── routed-gothic-LICENSE.md
+│   ├── ibm-plex-sans.woff2, ibm-plex-mono*.woff2
+│   └── ibm-plex-LICENSE.md
 └── icons/                  app icons for home screen install
 ```
 
