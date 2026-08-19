@@ -23,6 +23,7 @@ create table items (
   category text not null,
   colour text,
   brand text,
+  size text,
   price numeric,
   season text,
   occasion text,

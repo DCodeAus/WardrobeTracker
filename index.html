@@ -27,16 +27,6 @@
         <div class="rail-brand">
           Off the Peg<small>Wardrobe Log · Dan</small>
         </div>
-        <details class="rail-features">
-          <summary>Features</summary>
-          <ul>
-            <li>Cost-per-wear on everything</li>
-            <li>Outfit wear logging</li>
-            <li>Cull suggestions</li>
-            <li>7-day wishlist cooling-off</li>
-            <li>AI tools <span class="soon-chip">Soon</span></li>
-          </ul>
-        </details>
         <div
           id="demoBanner"
           style="
@@ -72,6 +62,12 @@
           <button class="rail-item" data-view="wishlist">
             <span class="hook"></span>Wishlist
           </button>
+          <button class="rail-item" data-view="sizes">
+            <span class="hook"></span>My Sizes
+          </button>
+          <div class="rail-soon-box">
+            AI tools <span class="soon-chip">Soon</span>
+          </div>
         </div>
         <div class="rail-spacer"></div>
         <button class="rail-add" id="openAddItem">+ Hang new item</button>
@@ -201,6 +197,16 @@
           </p>
           <div id="wishlistList"></div>
         </section>
+
+        <!-- MY SIZES -->
+        <section class="view" id="view-sizes">
+          <div class="page-head"><h1 class="page-title">My Sizes</h1></div>
+          <p class="page-sub">
+            Every brand and size you've logged, by category — a quick
+            reference for shopping.
+          </p>
+          <div id="sizesBody"></div>
+        </section>
       </main>
     </div>
 
@@ -252,6 +258,16 @@
             <input type="text" id="f-brand" placeholder="Optional" />
           </div>
           <div class="field">
+            <label>Size</label>
+            <input
+              type="text"
+              id="f-size"
+              placeholder="e.g. M, UK 10, 32R"
+            />
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
             <label>Price paid ($)</label>
             <input
               type="number"
@@ -261,8 +277,6 @@
               placeholder="0.00"
             />
           </div>
-        </div>
-        <div class="field-row">
           <div class="field">
             <label>Season</label>
             <select id="f-season">
@@ -272,15 +286,15 @@
               <option value="mid">Spring / Autumn</option>
             </select>
           </div>
-          <div class="field">
-            <label>Occasion</label>
-            <select id="f-occasion">
-              <option value="everyday">Everyday</option>
-              <option value="work">Work</option>
-              <option value="formal">Formal</option>
-              <option value="active">Active</option>
-            </select>
-          </div>
+        </div>
+        <div class="field">
+          <label>Occasion</label>
+          <select id="f-occasion">
+            <option value="everyday">Everyday</option>
+            <option value="work">Work</option>
+            <option value="formal">Formal</option>
+            <option value="active">Active</option>
+          </select>
         </div>
         <div class="field">
           <label>Notes</label>
@@ -957,6 +971,7 @@
             category: row.category,
             color: row.colour,
             brand: row.brand,
+            size: row.size,
             price: row.price,
             season: row.season,
             occasion: row.occasion,
@@ -980,6 +995,7 @@
             category: data.category,
             colour: data.color,
             brand: data.brand,
+            size: data.size,
             price: data.price,
             season: data.season,
             occasion: data.occasion,
@@ -1190,6 +1206,7 @@
             if (btn.dataset.view === "insights") renderInsights();
             if (btn.dataset.view === "cull") renderCull();
             if (btn.dataset.view === "wishlist") renderWishlist();
+            if (btn.dataset.view === "sizes") renderSizes();
           });
         });
 
@@ -1425,6 +1442,7 @@
           $("#f-category").value = "tops";
           $("#f-color").value = "";
           $("#f-brand").value = "";
+          $("#f-size").value = "";
           $("#f-price").value = "";
           $("#f-season").value = "all";
           $("#f-occasion").value = "everyday";
@@ -1474,6 +1492,7 @@
           $("#f-category").value = item.category;
           $("#f-color").value = item.color || "";
           $("#f-brand").value = item.brand || "";
+          $("#f-size").value = item.size || "";
           $("#f-price").value = item.price || "";
           $("#f-season").value = item.season || "all";
           $("#f-occasion").value = item.occasion || "everyday";
@@ -1506,6 +1525,7 @@
             category: $("#f-category").value,
             color: $("#f-color").value.trim(),
             brand: $("#f-brand").value.trim(),
+            size: $("#f-size").value.trim(),
             price: parseFloat($("#f-price").value) || 0,
             season: $("#f-season").value,
             occasion: $("#f-occasion").value,
@@ -2272,6 +2292,7 @@
           if (activeView === "view-insights") renderInsights();
           if (activeView === "view-cull") renderCull();
           if (activeView === "view-wishlist") renderWishlist();
+          if (activeView === "view-sizes") renderSizes();
         }
 
         // ---------- RETIRE ----------
@@ -2526,6 +2547,47 @@
           }
         });
 
+        // ---------- MY SIZES ----------
+        function renderSizes() {
+          const body = $("#sizesBody");
+          const withSize = state.items.filter((i) => (i.size || "").trim());
+          if (withSize.length === 0) {
+            body.innerHTML = `<p class="empty-note">No sizes logged yet. Add a size next time you hang an item, or edit an existing one.</p>`;
+            return;
+          }
+
+          // category -> brand -> set of sizes seen for that brand/category
+          const byCategory = {};
+          withSize.forEach((i) => {
+            const brand =
+              i.brand && i.brand.trim() ? i.brand.trim() : "No brand noted";
+            if (!byCategory[i.category]) byCategory[i.category] = {};
+            if (!byCategory[i.category][brand])
+              byCategory[i.category][brand] = new Set();
+            byCategory[i.category][brand].add(i.size.trim());
+          });
+
+          body.innerHTML = Object.keys(CATS)
+            .filter((cat) => byCategory[cat])
+            .map((cat) => {
+              const brands = Object.keys(byCategory[cat]).sort((a, b) =>
+                a.localeCompare(b),
+              );
+              const rows = brands
+                .map(
+                  (brand) => `
+            <div class="rank-row">
+              <span class="rr-name">${escapeHtml(brand)}</span>
+              <span class="rr-meta">${escapeHtml([...byCategory[cat][brand]].join(", "))}</span>
+            </div>
+          `,
+                )
+                .join("");
+              return `<div class="section-label">${CATS[cat].plural}</div><div class="rank-list">${rows}</div>`;
+            })
+            .join("");
+        }
+
         // ---------- SETTINGS ----------
         function openSettingsDrawer() {
           $("#set-unworn-days").value = state.settings.cullUnwornDays;
@@ -2632,6 +2694,7 @@
             "category",
             "color",
             "brand",
+            "size",
             "price",
             "season",
             "occasion",
