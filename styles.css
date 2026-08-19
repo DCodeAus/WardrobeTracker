@@ -75,14 +75,6 @@
     flex-direction:column;
     position:relative;
   }
-  .rail::before{
-    content:"";
-    position:absolute;
-    left:20px; right:20px; top:96px; bottom:20px;
-    border-left:1px solid var(--panel-line);
-    opacity:.4;
-    pointer-events:none;
-  }
   .rail-brand{
     padding:0 24px 24px;
     font-family:var(--font-display);
@@ -566,7 +558,6 @@
   @media (max-width:760px){
     .app{grid-template-columns:1fr;}
     .rail{flex-direction:row; padding:14px; overflow-x:auto;}
-    .rail::before{display:none;}
     .rail-brand{display:none;}
     .rail-nav{flex-direction:row; padding:0;}
     .rail-spacer{display:none;}
