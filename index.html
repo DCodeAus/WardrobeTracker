@@ -392,12 +392,12 @@
   "use strict";
 
   const CATS = {
-    tops:{label:"Top", color:"var(--cat-chip)", icon:"👕"},
-    bottoms:{label:"Bottoms", color:"var(--cat-chip)", icon:"👖"},
-    outerwear:{label:"Outerwear", color:"var(--cat-chip)", icon:"🧥"},
-    dresses:{label:"Dress", color:"var(--cat-chip)", icon:"👗"},
-    shoes:{label:"Shoes", color:"var(--cat-chip)", icon:"👟"},
-    accessories:{label:"Accessory", color:"var(--cat-chip)", icon:"👜"}
+    tops:{label:"Top", plural:"Tops", color:"var(--cat-chip)", icon:"👕"},
+    bottoms:{label:"Bottoms", plural:"Bottoms", color:"var(--cat-chip)", icon:"👖"},
+    outerwear:{label:"Outerwear", plural:"Outerwear", color:"var(--cat-chip)", icon:"🧥"},
+    dresses:{label:"Dress", plural:"Dresses", color:"var(--cat-chip)", icon:"👗"},
+    shoes:{label:"Shoes", plural:"Shoes", color:"var(--cat-chip)", icon:"👟"},
+    accessories:{label:"Accessory", plural:"Accessories", color:"var(--cat-chip)", icon:"👜"}
   };
 
   const SUPABASE_URL = "https://ubusmezepzilyrietest.supabase.co";
@@ -813,7 +813,7 @@
   function renderCategoryChips(){
     const chips = ["all", ...Object.keys(CATS)];
     $("#categoryChips").innerHTML = chips.map(c=>{
-      const label = c === "all" ? "All" : CATS[c].label + "s";
+      const label = c === "all" ? "All" : CATS[c].plural;
       return `<button class="chip ${c===activeCategory?'active':''}" data-cat="${c}">${label}</button>`;
     }).join("");
     $$("#categoryChips .chip").forEach(chip=>{
@@ -1685,7 +1685,7 @@
     const capFields = $("#categoryCapFields");
     capFields.innerHTML = Object.keys(CATS).map(c=>`
       <div class="field">
-        <label>${CATS[c].label}s cap</label>
+        <label>${CATS[c].plural} cap</label>
         <input type="number" min="0" step="1" id="cap-${c}" value="${state.settings.categoryCaps[c] ?? ""}">
       </div>
     `).join("");
