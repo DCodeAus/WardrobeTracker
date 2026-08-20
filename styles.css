@@ -113,7 +113,7 @@
   }
   .rail-brand small{
     display:block;
-    font-family:var(--font-mono);
+    font-family:var(--font-display);
     font-size:10px;
     letter-spacing:.14em;
     color:var(--text-dim);
@@ -230,6 +230,7 @@
   }
   .stat-num.money{color:var(--brass);}
   .stat-label{
+    font-family:var(--font-display);
     font-size:11px;
     color:var(--text-dim);
     text-transform:uppercase;
@@ -238,7 +239,7 @@
   }
 
   .section-label{
-    font-family:var(--font-mono);
+    font-family:var(--font-display);
     font-size:11px;
     letter-spacing:.14em;
     text-transform:uppercase;
@@ -354,7 +355,7 @@
   }
   .tag-cat{
     display:inline-flex; align-items:center; gap:6px;
-    font-family:var(--font-mono);
+    font-family:var(--font-display);
     font-size:10px;
     text-transform:uppercase;
     letter-spacing:.08em;
@@ -446,7 +447,7 @@
   .field{margin-bottom:16px;}
   .field label{
     display:block; font-size:11px; text-transform:uppercase; letter-spacing:.08em;
-    color:var(--text-dim); margin-bottom:6px; font-family:var(--font-mono);
+    color:var(--text-dim); margin-bottom:6px; font-family:var(--font-display);
   }
   .field input, .field select, .field textarea{
     width:100%; background:var(--panel); border:1px solid var(--panel-line);
@@ -515,7 +516,7 @@
   .btn-danger:hover{background:#3a2020; border-color:#8a3f3f;}
 
   .soon-chip{
-    font-family:var(--font-mono); font-size:10px; text-transform:uppercase;
+    font-family:var(--font-display); font-size:10px; text-transform:uppercase;
     letter-spacing:.08em; padding:3px 8px; border-radius:20px;
     background:var(--panel-line); color:var(--text-dim);
   }
@@ -527,7 +528,7 @@
 
   .detail-tag{
     display:inline-flex; align-items:center; gap:6px;
-    font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
+    font-family:var(--font-display); font-size:11px; text-transform:uppercase;
     padding:4px 10px; border-radius:20px; color:var(--white); margin-bottom:16px;
   }
   .detail-stats{
@@ -538,7 +539,7 @@
   .detail-stat{background:var(--panel); padding:14px 16px;}
   .detail-stat .n{font-family:var(--font-mono); font-size:20px; color:var(--heading);}
   .detail-stat .n.money{color:var(--brass);}
-  .detail-stat .l{font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:4px;}
+  .detail-stat .l{font-family:var(--font-display); font-size:10px; color:var(--text-dim); text-transform:uppercase; letter-spacing:.08em; margin-top:4px;}
   .detail-notes{font-size:13px; color:var(--text-soft); line-height:1.6; margin:16px 0;}
 
   .outfit-picker{display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; margin-bottom:6px;}
