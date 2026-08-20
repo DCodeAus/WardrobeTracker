@@ -437,13 +437,20 @@
   // Entirely local, never touches Supabase. Lets someone click around the
   // whole app without an account, and lets a returning user poke at things
   // without risking their real data.
+  // Simple flat-colour "photo" so a couple of demo items can show off the
+  // photo UI without shipping real product images with the app.
+  function demoSwatch(hex, icon){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="${hex}"/><text x="50%" y="50%" font-size="150" text-anchor="middle" dominant-baseline="central">${icon}</text></svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
+
   function loadDemoData(){
     const now = Date.now();
     const daysAgo = (n) => new Date(now - n * 86400000).toISOString();
 
     state.items = [
-      { id:"demo-1", name:"Navy Oxford Shirt", category:"tops", color:"Navy", brand:"Van Heusen", price:89.95, season:"all", occasion:"work", notes:"", favourite:true, wearCount:12, lastWorn:daysAgo(5), createdAt:now-200*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
-      { id:"demo-2", name:"Comfort Craftsman Boots", category:"shoes", color:"Chestnut", brand:"RM Williams", price:699, season:"all", occasion:"formal", notes:"Size 9", favourite:true, wearCount:3, lastWorn:daysAgo(60), createdAt:now-180*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
+      { id:"demo-1", name:"Navy Oxford Shirt", category:"tops", color:"Navy", brand:"Van Heusen", price:89.95, season:"all", occasion:"work", notes:"", favourite:true, wearCount:12, lastWorn:daysAgo(5), createdAt:now-200*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:demoSwatch("#2c3e63","👕") },
+      { id:"demo-2", name:"Comfort Craftsman Boots", category:"shoes", color:"Chestnut", brand:"RM Williams", price:699, season:"all", occasion:"formal", notes:"Size 9", favourite:true, wearCount:3, lastWorn:daysAgo(60), createdAt:now-180*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:demoSwatch("#6b4226","👢") },
       { id:"demo-3", name:"Charcoal Wool Suit", category:"outerwear", color:"Charcoal", brand:"", price:650, season:"mid", occasion:"formal", notes:"Wedding suit", favourite:false, wearCount:1, lastWorn:daysAgo(200), createdAt:now-220*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
       { id:"demo-4", name:"Black Chinos", category:"bottoms", color:"Black", brand:"Uniqlo", price:79.95, season:"all", occasion:"everyday", notes:"", favourite:false, wearCount:20, lastWorn:daysAgo(2), createdAt:now-160*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
       { id:"demo-5", name:"Grey Marle Tee", category:"tops", color:"Grey", brand:"", price:35, season:"summer", occasion:"everyday", notes:"", favourite:false, wearCount:0, lastWorn:null, createdAt:now-40*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
