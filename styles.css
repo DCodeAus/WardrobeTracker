@@ -1,4 +1,4 @@
-  /* Routed Gothic — a free (SIL OFL) recreation of Gorton, the mechanically-engraved
+  /* Routed Gothic: a free (SIL OFL) recreation of Gorton, the mechanically-engraved
      font found on Manhattan elevator plaques, intercoms and building signage.
      See fonts/routed-gothic-LICENSE.md for the licence text, which must ship
      alongside these files per the OFL's redistribution terms. */
@@ -24,7 +24,7 @@
     font-display:swap;
   }
 
-  /* IBM Plex Sans/Mono — free (SIL OFL), self-hosted for the same reason the
+  /* IBM Plex Sans/Mono: free (SIL OFL), self-hosted for the same reason the
      rest of the app's third-party assets are: a CDN request failing shouldn't
      be able to break the page. See fonts/ibm-plex-LICENSE.md for the licence. */
   @font-face{

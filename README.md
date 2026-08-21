@@ -9,24 +9,24 @@ money's genuinely paying off versus just sitting in the cupboard.
 
 ## What it does
 
-- **Cupboard** — every item, searchable and sortable by cost-per-wear, most/least worn, or recency. Optional photo per item.
-- **Outfits** — group pieces you wear together; logging an outfit's wear logs every piece in it.
-- **Insights** — wears-by-month chart, least-worn ranking, worst cost-per-wear leaderboard, spend by category, and a running tally of what you've decluttered and recouped.
-- **Cull** — surfaces items that are unworn past a threshold or have a bad cost-per-wear, so you've got an actual shortlist instead of vaguely knowing "something" needs to go.
-- **Wishlist** — a 7-day cooling-off pen for anything you're tempted to buy. It only unlocks "add to cupboard" after the week's up.
-- **Settings** — tune the cull thresholds, set a max item count per category (with a nudge when you go over), export your data as JSON or CSV.
-- **Multi-device** — sign in with email/password, your data syncs through Supabase rather than living in one browser.
-- **Installable** — Add to Home Screen on both Android (Chrome) and iOS (Safari), opens full-screen like a native app.
+- **Cupboard**: every item, searchable and sortable by cost-per-wear, most/least worn, or recency. Optional photo per item.
+- **Outfits**: group pieces you wear together; logging an outfit's wear logs every piece in it.
+- **Insights**: wears-by-month chart, least-worn ranking, worst cost-per-wear leaderboard, spend by category, and a running tally of what you've decluttered and recouped.
+- **Cull**: surfaces items that are unworn past a threshold or have a bad cost-per-wear, so you've got an actual shortlist instead of vaguely knowing "something" needs to go.
+- **Wishlist**: a 7-day cooling-off pen for anything you're tempted to buy. It only unlocks "add to cupboard" after the week's up.
+- **Settings**: tune the cull thresholds, set a max item count per category (with a nudge when you go over), export your data as JSON or CSV.
+- **Multi-device**: sign in with email/password, your data syncs through Supabase rather than living in one browser.
+- **Installable**: Add to Home Screen on both Android (Chrome) and iOS (Safari), opens full-screen like a native app.
 
 ## Stack
 
 Plain HTML/CSS/JS, no build step, no framework. Deliberately simple:
 
-- **[Supabase](https://supabase.com)** — Postgres database, auth, and file storage for photos
-- **[Three.js](https://threejs.org)** — a small decorative 3D flourish on the sign-in screen only; fully isolated, the app works with or without it
-- **[Routed Gothic](https://webonastick.com/)** by Darren Embry — a free ([SIL OFL](https://scripts.sil.org/OFL)) digitisation of _Gorton_, the mechanically-engraved lettering found on elevator plaques and building signage around Manhattan
-- **[IBM Plex Sans / Mono](https://github.com/IBM/plex)** — free ([SIL OFL](https://scripts.sil.org/OFL)), used for body text and numbers
-- All third-party JS (`supabase-js`, `three.js`) and fonts are self-hosted in `/vendor` and `/fonts` rather than pulled from a CDN at runtime — one less thing that can silently break the app if a CDN request fails
+- **[Supabase](https://supabase.com)**: Postgres database, auth, and file storage for photos
+- **[Three.js](https://threejs.org)**: a small decorative 3D flourish on the sign-in screen only; fully isolated, the app works with or without it
+- **[Routed Gothic](https://webonastick.com/)** by Darren Embry: a free ([SIL OFL](https://scripts.sil.org/OFL)) digitisation of _Gorton_, the mechanically-engraved lettering found on elevator plaques and building signage around Manhattan
+- **[IBM Plex Sans / Mono](https://github.com/IBM/plex)**: free ([SIL OFL](https://scripts.sil.org/OFL)), used for body text and numbers
+- All third-party JS (`supabase-js`, `three.js`) and fonts are self-hosted in `/vendor` and `/fonts` rather than pulled from a CDN at runtime, one less thing that can silently break the app if a CDN request fails
 
 ## Setup
 
@@ -48,7 +48,7 @@ const SUPABASE_URL = "...";
 const SUPABASE_ANON_KEY = "...";
 ```
 
-Replace them with your own project's values from step 1.6. This key is meant to be public — it's not a secret, your RLS policies are what actually protect the data, not the key.
+Replace them with your own project's values from step 1.6. This key is meant to be public; it's not a secret, your RLS policies are what actually protect the data, not the key.
 
 ### 3. Deploy
 
@@ -70,7 +70,7 @@ This is a static site, any static host works, but it was built and tested agains
 ├── styles.css
 ├── manifest.json           PWA config
 ├── service-worker.js       makes it installable; network-first for HTML/CSS so updates always land
-├── schema.sql              full database setup — run once on a fresh Supabase project
+├── schema.sql              full database setup, run once on a fresh Supabase project
 ├── vendor/
 │   ├── supabase.js         self-hosted Supabase client
 │   ├── three.module.min.js self-hosted Three.js

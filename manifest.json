@@ -1,7 +1,7 @@
 {
   "name": "Off the Peg",
   "short_name": "Off the Peg",
-  "description": "Wardrobe tracker — log what you wear, cull what you don't.",
+  "description": "Wardrobe tracker: log what you wear, cull what you don't.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

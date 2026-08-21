@@ -1,4 +1,4 @@
--- Off the Peg — full database schema
+-- Off the Peg: full database schema
 -- Run this once, in the Supabase SQL Editor, on a fresh project.
 -- Everything here is idempotent-ish for a first run; it is NOT safe to
 -- re-run on a database that already has this schema applied.
@@ -80,7 +80,7 @@ create table wishlist (
 );
 
 -- ============================================================
--- ROW LEVEL SECURITY — every table is scoped to its own owner_id.
+-- ROW LEVEL SECURITY: every table is scoped to its own owner_id.
 -- outfit_items has no owner_id of its own, so its policy looks up
 -- the parent outfit's owner_id instead.
 -- ============================================================
@@ -111,7 +111,7 @@ create policy "wishlist_owner_access" on wishlist for all
   using (auth.uid() = owner_id) with check (auth.uid() = owner_id);
 
 -- ============================================================
--- TABLE GRANTS — RLS controls *which rows*, these grants control
+-- TABLE GRANTS: RLS controls *which rows*, these grants control
 -- whether the authenticated role can touch the table at all.
 -- ============================================================
 
@@ -123,7 +123,7 @@ grant select, insert, update, delete on public.settings to authenticated;
 grant select, insert, update, delete on public.wishlist to authenticated;
 
 -- ============================================================
--- STORAGE POLICIES — for the "item-photos" bucket created manually
+-- STORAGE POLICIES: for the "item-photos" bucket created manually
 -- in the dashboard before running this file. Files are stored under
 -- a path like {user_id}/{item_id}.jpg, so access is scoped by folder.
 -- ============================================================

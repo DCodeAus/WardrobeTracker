@@ -1,6 +1,6 @@
-// Minimal service worker — exists purely so Chrome/Android treats this as an
+// Minimal service worker: exists purely so Chrome/Android treats this as an
 // installable app. Only truly static assets (fonts, icons) are cache-first.
-// The HTML shell, manifest, and styles.css are all network-first — anything
+// The HTML shell, manifest, and styles.css are all network-first: anything
 // that changes during active development must never be cache-first, or an
 // installed copy can get stuck showing an old version indefinitely.
 
