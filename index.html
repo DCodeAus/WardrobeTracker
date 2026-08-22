@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Off the Peg — Wardrobe Tracker</title>
+<title>Off the Peg - Wardrobe Tracker</title>
 
 <!-- PWA / Add to Home Screen -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#121213">
 <link rel="icon" href="icons/icon-192.png">
-<!-- iOS doesn't read manifest.json for home screen behaviour — these tags do the equivalent job -->
+<!-- iOS doesn't read manifest.json for home screen behaviour; these tags do the equivalent job -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -23,8 +23,8 @@
 
 <div class="app">
   <nav class="rail">
-    <div class="rail-brand">Off the Peg<small>Wardrobe Log · Dan</small></div>
-    <div id="demoBanner" style="display:none; margin:0 14px 10px; padding:8px 10px; background:#2c2716; border:1px solid var(--brass-dim); border-radius:3px; font-size:11px; color:var(--brass); text-align:center;">Demo data — nothing saved</div>
+    <div class="rail-brand">Off the Peg<small>In the Closet</small></div>
+    <div id="demoBanner" style="display:none; margin:0 14px 10px; padding:8px 10px; background:#2c2716; border:1px solid var(--brass-dim); border-radius:3px; font-size:11px; color:var(--brass); text-align:center;">Demo data: nothing saved</div>
     <div class="rail-nav">
       <button class="rail-item active" data-view="dashboard"><span class="hook"></span>Dashboard</button>
       <button class="rail-item" data-view="closet"><span class="hook"></span>Cupboard</button>
@@ -202,7 +202,7 @@
     <div class="field" id="initialWearsField">
       <label>Already worn (times)</label>
       <input type="number" id="f-initial-wears" min="0" step="1" placeholder="0">
-      <p style="font-size:11px; color:var(--text-dim); margin:6px 0 0;">For something you owned before starting this app — sets an accurate cost-per-wear from day one instead of starting at zero.</p>
+      <p style="font-size:11px; color:var(--text-dim); margin:6px 0 0;">For something you owned before starting this app: sets an accurate cost-per-wear from day one instead of starting at zero.</p>
     </div>
     <div class="field">
       <label>Notes</label>
@@ -369,7 +369,7 @@
     <button class="btn-ghost" id="forgotPasswordBtn" style="width:100%; margin-top:10px; font-size:12px;">Forgot password?</button>
     <div style="text-align:center; margin-top:18px; padding-top:16px; border-top:1px solid var(--panel-line);">
       <button class="btn-ghost" id="tryDemoBtn" style="width:100%;">Just looking? Try the demo</button>
-      <p style="font-size:11px; color:var(--text-dim); margin:8px 0 0;">Sample data only — nothing you do here is saved</p>
+      <p style="font-size:11px; color:var(--text-dim); margin:8px 0 0;">Sample data only: nothing you do here is saved</p>
     </div>
   </div>
 </div>
@@ -378,7 +378,7 @@
 <div class="overlay center" id="newPasswordOverlay">
   <div class="auth-card">
     <h2>Set a new password</h2>
-    <div class="drawer-sub">You followed a reset link — pick a new password below</div>
+    <div class="drawer-sub">You followed a reset link. Pick a new password below</div>
     <div class="field">
       <label>New password</label>
       <input type="password" id="new-password" placeholder="At least 6 characters">
@@ -397,12 +397,12 @@
   "use strict";
 
   const CATS = {
-    tops:{label:"Top", color:"var(--cat-chip)", icon:"👕"},
-    bottoms:{label:"Bottoms", color:"var(--cat-chip)", icon:"👖"},
-    outerwear:{label:"Outerwear", color:"var(--cat-chip)", icon:"🧥"},
-    dresses:{label:"Dress", color:"var(--cat-chip)", icon:"👗"},
-    shoes:{label:"Shoes", color:"var(--cat-chip)", icon:"👟"},
-    accessories:{label:"Accessory", color:"var(--cat-chip)", icon:"👜"}
+    tops:{label:"Top", plural:"Tops", color:"var(--cat-chip)", icon:"👕"},
+    bottoms:{label:"Bottoms", plural:"Bottoms", color:"var(--cat-chip)", icon:"👖"},
+    outerwear:{label:"Outerwear", plural:"Outerwear", color:"var(--cat-chip)", icon:"🧥"},
+    dresses:{label:"Dress", plural:"Dresses", color:"var(--cat-chip)", icon:"👗"},
+    shoes:{label:"Shoes", plural:"Shoes", color:"var(--cat-chip)", icon:"👟"},
+    accessories:{label:"Accessory", plural:"Accessories", color:"var(--cat-chip)", icon:"👜"}
   };
 
   const SUPABASE_URL = "https://ubusmezepzilyrietest.supabase.co";
@@ -417,7 +417,7 @@
         </div>
       </div>
     `;
-    throw new Error("window.supabase is unavailable — vendor/supabase.js failed to load");
+    throw new Error("window.supabase is unavailable: vendor/supabase.js failed to load");
   }
 
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -442,13 +442,20 @@
   // Entirely local, never touches Supabase. Lets someone click around the
   // whole app without an account, and lets a returning user poke at things
   // without risking their real data.
+  // Simple flat-colour "photo" so a couple of demo items can show off the
+  // photo UI without shipping real product images with the app.
+  function demoSwatch(hex, icon){
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="${hex}"/><text x="50%" y="50%" font-size="150" text-anchor="middle" dominant-baseline="central">${icon}</text></svg>`;
+    return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+  }
+
   function loadDemoData(){
     const now = Date.now();
     const daysAgo = (n) => new Date(now - n * 86400000).toISOString();
 
     state.items = [
-      { id:"demo-1", name:"Navy Oxford Shirt", category:"tops", color:"Navy", brand:"Van Heusen", price:89.95, season:"all", occasion:"work", notes:"", favourite:true, wearCount:12, lastWorn:daysAgo(5), createdAt:now-200*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
-      { id:"demo-2", name:"Comfort Craftsman Boots", category:"shoes", color:"Chestnut", brand:"RM Williams", price:699, season:"all", occasion:"formal", notes:"Size 9", favourite:true, wearCount:3, lastWorn:daysAgo(60), createdAt:now-180*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
+      { id:"demo-1", name:"Navy Oxford Shirt", category:"tops", color:"Navy", brand:"Van Heusen", price:89.95, season:"all", occasion:"work", notes:"", favourite:true, wearCount:12, lastWorn:daysAgo(5), createdAt:now-200*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:demoSwatch("#2c3e63","👕") },
+      { id:"demo-2", name:"Comfort Craftsman Boots", category:"shoes", color:"Chestnut", brand:"RM Williams", price:699, season:"all", occasion:"formal", notes:"Size 9", favourite:true, wearCount:3, lastWorn:daysAgo(60), createdAt:now-180*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:demoSwatch("#6b4226","👢") },
       { id:"demo-3", name:"Charcoal Wool Suit", category:"outerwear", color:"Charcoal", brand:"", price:650, season:"mid", occasion:"formal", notes:"Wedding suit", favourite:false, wearCount:1, lastWorn:daysAgo(200), createdAt:now-220*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
       { id:"demo-4", name:"Black Chinos", category:"bottoms", color:"Black", brand:"Uniqlo", price:79.95, season:"all", occasion:"everyday", notes:"", favourite:false, wearCount:20, lastWorn:daysAgo(2), createdAt:now-160*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
       { id:"demo-5", name:"Grey Marle Tee", category:"tops", color:"Grey", brand:"", price:35, season:"summer", occasion:"everyday", notes:"", favourite:false, wearCount:0, lastWorn:null, createdAt:now-40*86400000, status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl:null },
@@ -494,7 +501,7 @@
   }
 
   function fmtMoney(n){
-    if(n === null || n === undefined || isNaN(n)) return "—";
+    if(n === null || n === undefined || isNaN(n)) return "–";
     return "$" + Number(n).toFixed(2);
   }
 
@@ -576,7 +583,7 @@
   }
 
   // ---------- PHOTOS ----------
-  // Resize/compress in the browser before upload — phone photos can be
+  // Resize/compress in the browser before upload: phone photos can be
   // several MB, nobody needs that for a wardrobe thumbnail.
   function resizeImageFile(file, maxDim, quality){
     maxDim = maxDim || 1000;
@@ -669,7 +676,7 @@
       await refreshPhotoUrls(state.items);
     }catch(e){
       console.error("Load from Supabase failed", e);
-      showToast("Couldn't load your cupboard — check the console");
+      showToast("Couldn't load your cupboard - check the console");
       state = { items: [], outfits: [], wearLog: [], wishlist: [], settings: { cullUnwornDays:90, cullCpwThreshold:15, categoryCaps:{} } };
     }
   }
@@ -722,7 +729,7 @@
     $("#statStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${total}</div><div class="stat-label">Items on the rail</div></div>
       <div class="stat"><div class="stat-num money">${fmtMoney(totalValue)}</div><div class="stat-label">Total invested</div></div>
-      <div class="stat"><div class="stat-num money">${avgCpw !== null && !isNaN(avgCpw) ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
+      <div class="stat"><div class="stat-num money">${avgCpw !== null && !isNaN(avgCpw) ? fmtMoney(avgCpw) : "–"}</div><div class="stat-label">Avg. cost per wear</div></div>
       <div class="stat"><div class="stat-num">${unworn}</div><div class="stat-label">Never worn</div></div>
     `;
   }
@@ -745,7 +752,7 @@
         </div>
         <div class="tag-row" style="border-top:none; padding-top:6px;">
           <span>Worn ${item.wearCount||0}×</span>
-          <span class="tag-cpw">${cpw !== null ? fmtMoney(cpw) + "/wear" : "—"}</span>
+          <span class="tag-cpw">${cpw !== null ? fmtMoney(cpw) + "/wear" : "–"}</span>
         </div>
       </div>
     `;
@@ -818,7 +825,7 @@
   function renderCategoryChips(){
     const chips = ["all", ...Object.keys(CATS)];
     $("#categoryChips").innerHTML = chips.map(c=>{
-      const label = c === "all" ? "All" : CATS[c].label + "s";
+      const label = c === "all" ? "All" : CATS[c].plural;
       return `<button class="chip ${c===activeCategory?'active':''}" data-cat="${c}">${label}</button>`;
     }).join("");
     $$("#categoryChips .chip").forEach(chip=>{
@@ -973,11 +980,11 @@
         Object.assign(item, data);
         if(removePhotoFlag) item.photoUrl = null;
         else if(pendingPhotoFile) item.photoUrl = $("#photoPreviewImg").src;
-        showToast("Item updated (demo — not saved)");
+        showToast("Item updated (demo, not saved)");
       }else{
         const item = { id: uid(), ...data, wearCount:initialWears, lastWorn:null, createdAt:Date.now(), status:"active", retiredAt:null, resaleValue:null, photoPath:null, photoUrl: pendingPhotoFile ? $("#photoPreviewImg").src : null };
         state.items.unshift(item);
-        showToast(initialWears > 0 ? `Added with ${initialWears} wears already logged (demo — not saved)` : "Added (demo — not saved)");
+        showToast(initialWears > 0 ? `Added with ${initialWears} wears already logged (demo, not saved)` : "Added (demo, not saved)");
         if(pendingWishId){
           state.wishlist = state.wishlist.filter(w=>w.id !== pendingWishId);
           pendingWishId = null;
@@ -985,7 +992,7 @@
         const cap = state.settings.categoryCaps[data.category];
         if(cap && activeItems().filter(i=>i.category===data.category).length > cap){
           const label = CATS[data.category] ? CATS[data.category].label : data.category;
-          showToast(`Over your ${label} cap (${cap}) — worth retiring one`);
+          showToast(`Over your ${label} cap (${cap}), worth retiring one`);
         }
       }
       pendingPhotoFile = null;
@@ -1065,7 +1072,7 @@
           const countInCat = activeItems().filter(i=>i.category===data.category).length;
           if(countInCat > cap){
             const label = CATS[data.category] ? CATS[data.category].label : data.category;
-            showToast(`Over your ${label} cap (${cap}) — worth retiring one`);
+            showToast(`Over your ${label} cap (${cap}), worth retiring one`);
           }
         }
       }
@@ -1075,7 +1082,7 @@
       refreshCurrentView();
     }catch(e){
       console.error("Save item failed", e);
-      showToast("Couldn't save — check the console");
+      showToast("Couldn't save - check the console");
     }
   });
 
@@ -1096,9 +1103,9 @@
 
       <div class="detail-stats">
         <div class="detail-stat"><div class="n">${item.wearCount||0}</div><div class="l">Times worn</div></div>
-        <div class="detail-stat"><div class="n money">${cpw!==null?fmtMoney(cpw):"—"}</div><div class="l">Cost per wear</div></div>
+        <div class="detail-stat"><div class="n money">${cpw!==null?fmtMoney(cpw):"–"}</div><div class="l">Cost per wear</div></div>
         <div class="detail-stat"><div class="n money">${fmtMoney(item.price)}</div><div class="l">Price paid</div></div>
-        <div class="detail-stat"><div class="n">${item.lastWorn ? daysSince(item.lastWorn)+"d" : "—"}</div><div class="l">Since last worn</div></div>
+        <div class="detail-stat"><div class="n">${item.lastWorn ? daysSince(item.lastWorn)+"d" : "–"}</div><div class="l">Since last worn</div></div>
       </div>
 
       ${item.notes ? `<div class="detail-notes">${escapeHtml(item.notes)}</div>` : ""}
@@ -1140,7 +1147,7 @@
           refreshCurrentView();
         }catch(e){
           console.error("Restore failed", e);
-          showToast("Couldn't restore that — check the console");
+          showToast("Couldn't restore that - check the console");
         }
       });
     }else{
@@ -1168,7 +1175,7 @@
           refreshCurrentView();
         }catch(e){
           console.error("Log wear failed", e);
-          showToast("Couldn't log that — check the console");
+          showToast("Couldn't log that - check the console");
         }
       });
       $("#retireItemBtn").addEventListener("click", ()=> openRetire(id));
@@ -1196,7 +1203,7 @@
         refreshCurrentView();
       }catch(e){
         console.error("Delete item failed", e);
-        showToast("Couldn't delete — check the console");
+        showToast("Couldn't delete - check the console");
       }
     });
 
@@ -1285,7 +1292,7 @@
           renderOutfits();
         }catch(e){
           console.error("Log outfit wear failed", e);
-          showToast("Couldn't log that — check the console");
+          showToast("Couldn't log that - check the console");
         }
       });
     });
@@ -1306,7 +1313,7 @@
           renderOutfits();
         }catch(e){
           console.error("Delete outfit failed", e);
-          showToast("Couldn't delete — check the console");
+          showToast("Couldn't delete - check the console");
         }
       });
     });
@@ -1373,7 +1380,7 @@
       renderOutfits();
     }catch(e){
       console.error("Save outfit failed", e);
-      showToast("Couldn't save the outfit — check the console");
+      showToast("Couldn't save the outfit - check the console");
     }
   });
 
@@ -1391,7 +1398,7 @@
     $("#insightsStatStrip").innerHTML = `
       <div class="stat"><div class="stat-num">${totalWearEvents}</div><div class="stat-label">Wears logged</div></div>
       <div class="stat"><div class="stat-num">${neverWorn}</div><div class="stat-label">Never worn</div></div>
-      <div class="stat"><div class="stat-num money">${avgCpw !== null ? fmtMoney(avgCpw) : "—"}</div><div class="stat-label">Avg. cost per wear</div></div>
+      <div class="stat"><div class="stat-num money">${avgCpw !== null ? fmtMoney(avgCpw) : "–"}</div><div class="stat-label">Avg. cost per wear</div></div>
       <div class="stat"><div class="stat-num money">${fmtMoney(totalValue)}</div><div class="stat-label">Wardrobe value</div></div>
     `;
 
@@ -1426,7 +1433,7 @@
       : leastWorn.map(i=>`
           <div class="rank-row">
             <span class="rr-name">${escapeHtml(i.name)}</span>
-            <span class="rr-meta">${i.wearCount}× · last ${i.lastWorn ? daysSince(i.lastWorn)+"d ago" : "—"}</span>
+            <span class="rr-meta">${i.wearCount}× · last ${i.lastWorn ? daysSince(i.lastWorn)+"d ago" : "–"}</span>
           </div>
         `).join("");
 
@@ -1523,12 +1530,12 @@
       const item = state.items.find(i=>i.id===pendingRetireId);
       if(item){ item.status = status; item.resaleValue = resaleValue; item.retiredAt = retiredAt; }
       closeOverlay("retireOverlay");
-      showToast("Retired — nice work");
+      showToast("Retired - nice work");
       pendingRetireId = null;
       refreshCurrentView();
     }catch(e){
       console.error("Retire failed", e);
-      showToast("Couldn't retire that — check the console");
+      showToast("Couldn't retire that - check the console");
     }
   });
 
@@ -1638,7 +1645,7 @@
           renderWishlist();
         }catch(e){
           console.error("Remove wishlist item failed", e);
-          showToast("Couldn't remove that — check the console");
+          showToast("Couldn't remove that - check the console");
         }
       });
     });
@@ -1685,7 +1692,7 @@
       renderWishlist();
     }catch(e){
       console.error("Save wishlist item failed", e);
-      showToast("Couldn't save that — check the console");
+      showToast("Couldn't save that - check the console");
     }
   });
 
@@ -1696,7 +1703,7 @@
     const capFields = $("#categoryCapFields");
     capFields.innerHTML = Object.keys(CATS).map(c=>`
       <div class="field">
-        <label>${CATS[c].label}s cap</label>
+        <label>${CATS[c].plural} cap</label>
         <input type="number" min="0" step="1" id="cap-${c}" value="${state.settings.categoryCaps[c] ?? ""}">
       </div>
     `).join("");
@@ -1721,7 +1728,7 @@
       return;
     }
 
-    if(!currentUserId){ showToast("Not signed in — try refreshing"); return; }
+    if(!currentUserId){ showToast("Not signed in - try refreshing"); return; }
     try{
       const { error } = await sb.from("settings").upsert({
         owner_id: currentUserId,
@@ -1737,7 +1744,7 @@
       refreshCurrentView();
     }catch(e){
       console.error("Save settings failed", e);
-      showToast("Couldn't save settings — check the console");
+      showToast("Couldn't save settings - check the console");
     }
   });
 
@@ -1846,7 +1853,7 @@
       $("#authError").textContent = "Enter your email above first, then tap this again";
       return;
     }
-    // Explicit redirectTo, computed from wherever this page actually is —
+    // Explicit redirectTo, computed from wherever this page actually is:
     // this must also be added to Supabase's Redirect URLs allow-list
     // (Authentication → URL Configuration) or Supabase will ignore it.
     const redirectTo = window.location.origin + window.location.pathname;
@@ -1929,7 +1936,7 @@
   echoing the punch-hole tag motif used throughout the app. Deliberately
   isolated in its own module script so a WebGL/Three.js failure of any kind
   (unsupported device, blocked script, etc.) can never affect the actual app
-  above — it just quietly fails to render, leaving an empty spot.
+  above: it just quietly fails to render, leaving an empty spot.
 -->
 <script type="module">
 try{
@@ -1949,7 +1956,7 @@ try{
     const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 10);
     camera.position.set(0, 0, 3);
 
-    // Tag silhouette — same pentagon-with-punch-hole shape as the app icon
+    // Tag silhouette: same pentagon-with-punch-hole shape as the app icon
     const shape = new THREE.Shape();
     shape.moveTo(0, 0.75);
     shape.lineTo(0.35, 0.42);
@@ -1971,7 +1978,7 @@ try{
     });
     geometry.center();
 
-    // Paper-white card, not metal — this is what actually reads as a price
+    // Paper-white card, not metal: this is what actually reads as a price
     // tag rather than a keyring fob. Gold is reserved for the eyelet ring,
     // a small nod to cost without making the whole tag look like jewellery.
     const material = new THREE.MeshStandardMaterial({
@@ -2007,7 +2014,7 @@ try{
     }
     animate();
 
-    // Stop rendering once signed in and the auth card is hidden — no point
+    // Stop rendering once signed in and the auth card is hidden, no point
     // spending GPU cycles on a decoration nobody can see.
     const authOverlay = document.getElementById("authOverlay");
     if(authOverlay){
@@ -2022,7 +2029,7 @@ try{
     }
   }
 }catch(e){
-  console.warn("Decorative 3D tag didn't load — no impact on the app itself:", e);
+  console.warn("Decorative 3D tag didn't load - no impact on the app itself:", e);
 }
 </script>
 </body>
